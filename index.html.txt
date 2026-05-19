@@ -1,0 +1,229 @@
+Lottery machine kòd html 
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jwèt Loto Animasyon</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        #game-container {
+            position: relative;
+            width: 400px;
+            height: 700px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            background: #000;
+            border-radius: 10px;
+        }
+        .controls {
+            position: absolute;
+            bottom: 120px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        button {
+            border: none;
+            border-radius: 50%;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: transform 0.1s;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        #btn-reset {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #4da3ff, #0055ff);
+            color: white;
+            font-size: 14px;
+        }
+        #btn-draw {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #ff4d4d, #cc0000);
+            color: white;
+            font-size: 18px;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(255, 77, 77, 0.6);
+        }
+        #results {
+            margin-top: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 10px;
+            height: 40px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="lotoCanvas" width="400" height="600"></canvas>
+        
+        <div class="controls">
+            <button id="btn-reset">Reset</button>
+            <button id="btn-draw">Draw</button>
+        </div>
+        <div id="results"></div>
+    </div>
+    <script>
+        const canvas = document.getElementById('lotoCanvas');
+        const ctx = canvas.getContext('2d');
+        const btnDraw = document.getElementById('btn-draw');
+        const btnReset = document.getElementById('btn-reset');
+        const resultsDiv = document.getElementById('results');
+        // Konfigirasyon Glòb Loto a
+        const globe = { x: 200, y: 220, radius: 170 };
+        const tubeX = 50, tubeY = 380, tubeWidth = 300, tubeHeight = 200;
+        
+        let balls = [];
+        let drawnBalls = [];
+        const colors = ['#ff4d4d', '#ffcc00', '#33cc33', '#3399ff', '#ff9933', '#cc33ff'];
+        class Ball {
+            constructor(number) {
+                this.number = number;
+                this.radius = 12;
+                // Mete boul yo anndan glòb la okòmansman
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * (globe.radius - 30);
+                this.x = globe.x + Math.cos(angle) * dist;
+                this.y = globe.y + Math.sin(angle) * dist;
+                
+                // Vitès boul yo (brase)
+                this.vx = (Math.random() - 0.5) * 8;
+                this.vy = (Math.random() - 0.5) * 8;
+                this.color = colors[number % colors.length];
+                this.isDrawn = false;
+                this.inTube = false;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.closePath();
+                // Nimewo anndan boul la
+                ctx.fillStyle = '#000';
+                ctx.font = 'bold 11px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.number, this.x, this.y);
+            }
+            update() {
+                if (this.inTube) return; // Si l fin tire, li pa bouje ankò
+                // Si boul la ap sote anndan gwo sèk la
+                this.x += this.vx;
+                this.y += this.vy;
+                // Gravite senp pou fè yo tounen anba
+                this.vy += 0.1;
+                // Deteksyon kolizyon avèk mi sèk la (Glòb)
+                const dx = this.x - globe.x;
+                const dy = this.y - globe.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance + this.radius > globe.radius) {
+                    const angle = Math.atan2(dy, dx);
+                    // Repouse boul la anndan
+                    this.x = globe.x + Math.cos(angle) * (globe.radius - this.radius);
+                    this.y = globe.y + Math.sin(angle) * (globe.radius - this.radius);
+                    // Rebondi (Fizik rebondisman)
+                    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                    this.vx = -Math.cos(angle) * speed * 0.8;
+                    this.vy = -Math.sin(angle) * speed * 0.8;
+                    // Ajoute yon ti fòs random pou yo pa janm rete an plas
+                    this.vx += (Math.random() - 0.5) * 2;
+                    this.vy += (Math.random() - 0.5) * 2;
+                }
+            }
+        }
+        // Inisyalize 45 boul jwèt la
+        function initBalls() {
+            balls = [];
+            drawnBalls = [];
+            resultsDiv.innerText = '';
+            for (let i = 1; i <= 45; i++) {
+                balls.push(new Ball(i));
+            }
+        }
+        // Fonksyon pou desine estrikti a (Glòb ak tib la)
+        function drawStructure() {
+            // Sèk prensipal (Glòb)
+            ctx.beginPath();
+            ctx.arc(globe.x, globe.y, globe.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.closePath();
+            // Tib kote boul yo soti a (Ranp lan)
+            ctx.beginPath();
+            ctx.moveTo(globe.x - 120, globe.y + 120); 
+            ctx.lineTo(tubeX, tubeY);
+            ctx.lineTo(tubeX + tubeWidth, tubeY + tubeHeight);
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.closePath();
+        }
+        // Tiraj yon boul
+        function drawBall() {
+            if (drawnBalls.length >= 6) return; // Limit a 6 boul tankou nan foto a
+            // Chwazi yon boul ozafa ki poko tire
+            const availableBalls = balls.filter(b => !b.isDrawn);
+            if (availableBalls.length === 0) return;
+            const luckyBall = availableBalls[Math.floor(Math.random() * availableBalls.length)];
+            luckyBall.isDrawn = true;
+            
+            // Pozisyon nan tib la selon kantite boul ki tire deja
+            const index = drawnBalls.length;
+            luckyBall.inTube = true;
+            
+            // Mete boul yo sou liy ranp lan anba a
+            luckyBall.x = (tubeX + tubeWidth - 30) - (index * 30);
+            luckyBall.y = (tubeY + tubeHeight - 20) - (index * 20);
+            drawnBalls.push(luckyBall.number);
+            
+            // Afiche rezilta anba a
+            resultsDiv.innerText = drawnBalls.join(' ');
+        }
+        // Bouk Animasyon prensipal la
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawStructure();
+            balls.forEach(ball => {
+                ball.update();
+                ball.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        // Koute evènman sou bouton yo
+        btnDraw.addEventListener('click', drawBall);
+        btnReset.addEventListener('click', initBalls);
+        // Kòmanse jwèt la
+        initBalls();
+        animate();
+    </script>
+</body>
+</html>
