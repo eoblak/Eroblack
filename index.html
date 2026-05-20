@@ -1,590 +1,275 @@
 <!DOCTYPE html>
 <html lang="ht">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Loto Pro Max</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Loto Pro Max - PVC Curve</title>
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body { background: #000; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        
+        #app { width: 100%; max-width: 380px; padding: 15px; background: #111; border-radius: 30px; border: 2px solid #222; text-align: center; box-shadow: 0 0 40px rgba(255,0,0,0.2); position: relative; }
 
-<style>
+        h1 { font-size: 20px; color: #ff3333; margin-bottom: 15px; letter-spacing: 2px; }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
+        /* Zòn Machin nan */
+        .machine-container { position: relative; width: 320px; height: 360px; margin: auto; }
+        
+        /* Tanbou a */
+        canvas { 
+            position: absolute; top: 50px; left: 20px; 
+            width: 220px; height: 220px; border-radius: 50%; 
+            background: radial-gradient(circle, #222, #000); 
+            border: 5px solid #333; z-index: 5;
+        }
 
-body{
-    background:#050505;
-    color:white;
-    font-family:Arial,sans-serif;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-    overflow:hidden;
-}
+        /* PVC an fòm L (Curve) */
+        .pvc-l-tube {
+            position: absolute; top: 20px; right: 30px;
+            width: 120px; height: 300px;
+            border-top: 35px solid rgba(255,255,255,0.1);
+            border-right: 35px solid rgba(255,255,255,0.1);
+            border-radius: 0 60px 0 0;
+            z-index: 1; pointer-events: none;
+        }
 
-#app{
-    width:100%;
-    max-width:390px;
-    background:linear-gradient(180deg,#111,#000);
-    border-radius:25px;
-    padding:15px;
-    border:2px solid #222;
-    box-shadow:0 0 30px rgba(255,0,0,.2);
-    text-align:center;
-    position:relative;
-}
+        /* Chimen kote boul yo repoze a (Horizontal) */
+        .resting-pvc {
+            position: absolute; bottom: 10px; left: 15px;
+            width: 220px; height: 55px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+            display: flex; justify-content: space-around; align-items: center;
+            backdrop-filter: blur(5px); z-index: 2;
+        }
 
-h1{
-    font-size:24px;
-    margin-bottom:10px;
-    color:#ff2d2d;
-    letter-spacing:1px;
-}
+        .slot { width: 45px; height: 45px; border-radius: 50%; background: rgba(0,0,0,0.5); border: 1px dashed #555; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
 
-.machine{
-    position:relative;
-    width:300px;
-    height:340px;
-    margin:auto;
-}
+        /* Boul k ap deplase a */
+        .rolling-ball {
+            position: absolute; width: 38px; height: 38px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: #fff; font-size: 16px; z-index: 100;
+            box-shadow: inset -4px -4px 8px rgba(0,0,0,0.5);
+            transition: all 0.8s linear; opacity: 0;
+        }
 
-canvas{
-    width:300px;
-    height:300px;
-    border-radius:50%;
-    background:
-    radial-gradient(circle at center,#2a2a2a 0%, #000 70%);
-    border:5px solid #444;
-    box-shadow:
-    inset 0 0 30px rgba(255,255,255,.1),
-    0 0 25px rgba(255,0,0,.25);
-}
+        /* UI Controls */
+        .ui-panel { background: #1a1a1a; padding: 15px; border-radius: 20px; margin-top: 10px; border: 1px solid #333; }
+        .input-group { display: flex; flex-direction: column; text-align: left; margin-bottom: 10px; }
+        label { font-size: 10px; color: #888; margin-bottom: 3px; font-weight: bold; }
+        input { background: #000; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 16px; text-align: center; width: 100%; outline: none; }
+        .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        button { 
+            width: 100%; background: linear-gradient(#ff0000, #aa0000); color: #fff; border: none; 
+            padding: 15px; border-radius: 12px; font-weight: bold; font-size: 18px; margin-top: 10px; cursor: pointer;
+            box-shadow: 0 4px 0 #660000; text-transform: uppercase;
+        }
+        button:disabled { opacity: 0.5; filter: grayscale(1); }
 
-.tube{
-    position:absolute;
-    width:28px;
-    height:140px;
-    background:rgba(255,255,255,.08);
-    border:2px solid rgba(255,255,255,.15);
-    left:136px;
-    top:220px;
-    border-radius:20px;
-    overflow:hidden;
-    backdrop-filter:blur(4px);
-}
-
-.ball-inside{
-    position:absolute;
-    width:24px;
-    height:24px;
-    border-radius:50%;
-    left:0;
-    right:0;
-    margin:auto;
-    transition:1.2s cubic-bezier(.22,1,.36,1);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:10px;
-    font-weight:bold;
-    color:white;
-    box-shadow:inset -2px -2px 4px rgba(0,0,0,.5);
-}
-
-.glow{
-    animation:glow .8s infinite alternate;
-}
-
-@keyframes glow{
-    from{
-        box-shadow:0 0 10px rgba(255,255,255,.2);
-    }
-    to{
-        box-shadow:0 0 25px rgba(255,255,255,.8);
-    }
-}
-
-/* PVC L */
-
-.pvc-container{
-    width:260px;
-    height:120px;
-    margin:20px auto 10px;
-    position:relative;
-}
-
-.pvc-horizontal{
-    position:absolute;
-    bottom:0;
-    left:0;
-    width:220px;
-    height:55px;
-    border-radius:30px;
-    background:rgba(255,255,255,.05);
-    border:2px solid rgba(255,255,255,.15);
-    display:flex;
-    justify-content:space-evenly;
-    align-items:center;
-    backdrop-filter:blur(4px);
-    box-shadow:0 0 15px rgba(255,255,255,.05);
-}
-
-.pvc-vertical{
-    position:absolute;
-    right:20px;
-    top:0;
-    width:55px;
-    height:90px;
-    border-radius:30px;
-    background:rgba(255,255,255,.05);
-    border:2px solid rgba(255,255,255,.15);
-    backdrop-filter:blur(4px);
-    box-shadow:0 0 15px rgba(255,255,255,.05);
-}
-
-.slot{
-    width:48px;
-    height:48px;
-    border-radius:50%;
-    background:#111;
-    border:2px dashed #555;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:bold;
-    font-size:18px;
-    color:white;
-    box-shadow: inset 0 0 10px rgba(0,0,0,.6);
-}
-
-.field{
-    text-align:left;
-    margin-top:12px;
-}
-
-label{
-    display:block;
-    font-size:11px;
-    margin-bottom:4px;
-    color:#999;
-    text-transform:uppercase;
-}
-
-input{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:10px;
-    background:#181818;
-    color:white;
-    font-size:16px;
-    text-align:center;
-    outline:none;
-}
-
-.row{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-}
-
-button{
-    width:100%;
-    padding:15px;
-    margin-top:18px;
-    border:none;
-    border-radius:12px;
-    background:linear-gradient(180deg,#ff1d1d,#990000);
-    color:white;
-    font-weight:bold;
-    font-size:18px;
-    cursor:pointer;
-    box-shadow:0 5px 15px rgba(255,0,0,.3);
-}
-
-button:disabled{
-    opacity:.5;
-}
-
-#status{
-    margin-top:10px;
-    color:#ffcf33;
-    font-size:13px;
-    min-height:18px;
-}
-
-#modal{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.92);
-    display:none;
-    justify-content:center;
-    align-items:center;
-    z-index:999;
-}
-
-.modal-card{
-    width:85%;
-    background:#111;
-    border:2px solid red;
-    border-radius:20px;
-    padding:30px;
-    text-align:center;
-    animation:pop .4s ease;
-}
-
-@keyframes pop{
-    from{
-        transform:scale(.7);
-        opacity:0;
-    }
-    to{
-        transform:scale(1);
-        opacity:1;
-    }
-}
-
-</style>
+        #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-card { width: 85%; background: #111; border: 2px solid #ff0000; border-radius: 25px; padding: 30px; text-align: center; }
+    </style>
 </head>
-
 <body>
 
 <div id="app">
+    <h1>LOTO PRO MAX</h1>
 
-<h1>LOTO PRO MAX</h1>
-
-<div class="machine">
-
-<canvas id="canvas" width="300" height="300"></canvas>
-
-<div class="tube" id="tube"></div>
-
-</div>
-
-<div id="status"></div>
-
-<!-- PVC L -->
-<div class="pvc-container">
-
-    <div class="pvc-vertical"></div>
-
-    <div class="pvc-horizontal">
-        <div class="slot" id="s0"></div>
-        <div class="slot" id="s1"></div>
-        <div class="slot" id="s2"></div>
+    <div class="machine-container">
+        <canvas id="canvas" width="220" height="220"></canvas>
+        <div class="pvc-l-tube"></div>
+        <div id="ball-actor" class="rolling-ball"></div>
+        
+        <div class="resting-pvc">
+            <div class="slot" id="s0"></div>
+            <div class="slot" id="s1"></div>
+            <div class="slot" id="s2"></div>
+        </div>
     </div>
 
-</div>
+    <div class="ui-panel">
+        <div class="input-group">
+            <label>CHWAZI 3 BOUL (EX: 12 45 09)</label>
+            <input type="text" id="user-nums" placeholder="00 00 00" maxlength="8">
+        </div>
+        
+        <div class="grid-stats">
+            <div class="input-group">
+                <label>MIZ (HTG)</label>
+                <input type="number" id="bet-amount" value="20">
+            </div>
+            <div class="input-group">
+                <label>STATI PEYE</label>
+                <input type="text" id="status-pay" value="0" readonly style="color: #ffcc00;">
+            </div>
+        </div>
 
-<div class="field">
-<label>Nimewo Ou Yo</label>
-<input type="text" id="nums" maxlength="8" placeholder="00 00 00">
-</div>
-
-<div class="row">
-
-<div class="field">
-<label>Miz</label>
-<input type="number" id="miz" value="20">
-</div>
-
-<div class="field">
-<label>Peye</label>
-<input type="text" id="peye" value="0" readonly>
-</div>
-
-</div>
-
-<button id="btn">START TIRAJ</button>
-
+        <button id="draw-btn">KÒMANSE TIRAJ LA</button>
+    </div>
 </div>
 
 <div id="modal">
-<div class="modal-card" id="modal-content"></div>
+    <div class="modal-card" id="modal-content"></div>
 </div>
 
 <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const ballActor = document.getElementById("ball-actor");
+    const drawBtn = document.getElementById("draw-btn");
+    const userNumsInput = document.getElementById("user-nums");
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+    let balls = [];
+    let isDrawing = false;
+    const globe = { x: 110, y: 110, r: 105 };
 
-const globe = {
-    x:150,
-    y:150,
-    r:135
-};
-
-let balls = [];
-let active = false;
-
-class Ball{
-
-    constructor(n){
-        this.num = n < 10 ? "0"+n : ""+n;
-        this.r = 12;
-        this.color = `hsl(${Math.random()*360},80%,55%)`;
-        this.reset();
-    }
-
-    reset(){
-        this.x = globe.x + (Math.random()-.5)*160;
-        this.y = globe.y + (Math.random()-.5)*160;
-        this.vx = (Math.random()-.5)*8;
-        this.vy = (Math.random()-.5)*8;
-        this.visible = true;
-    }
-
-    update(){
-
-        if(!this.visible) return;
-
-        let power = active ? 1.5 : .3;
-
-        this.vx += (Math.random()-.5)*power;
-        this.vy += (Math.random()-.5)*power;
-
-        this.x += this.vx;
-        this.y += this.vy;
-
-        this.vx *= .99;
-        this.vy *= .99;
-
-        let dx = this.x - globe.x;
-        let dy = this.y - globe.y;
-
-        let dist = Math.sqrt(dx*dx + dy*dy);
-
-        if(dist + this.r > globe.r){
-
-            let angle = Math.atan2(dy,dx);
-
-            this.x = globe.x + Math.cos(angle)*(globe.r-this.r);
-            this.y = globe.y + Math.sin(angle)*(globe.r-this.r);
-
-            this.vx *= -.9;
-            this.vy *= -.9;
+    class Ball {
+        constructor(n) {
+            this.n = n < 10 ? "0"+n : ""+n;
+            this.r = 10;
+            this.color = `hsl(${Math.random()*360}, 80%, 60%)`;
+            this.reset();
+        }
+        reset() {
+            this.x = globe.x + (Math.random()-.5)*140;
+            this.y = globe.y + (Math.random()-.5)*140;
+            this.vx = (Math.random()-.5)*10;
+            this.vy = (Math.random()-.5)*10;
+            this.visible = true;
+        }
+        update() {
+            if(!this.visible) return;
+            let force = isDrawing ? 2 : 0.4;
+            this.vx += (Math.random()-.5)*force;
+            this.vy += (Math.random()-.5)*force;
+            this.x += this.vx; this.y += this.vy;
+            let d = Math.hypot(this.x - globe.x, this.y - globe.y);
+            if(d + this.r > globe.r) {
+                let a = Math.atan2(this.y - globe.y, this.x - globe.x);
+                this.x = globe.x + Math.cos(a)*(globe.r - this.r);
+                this.y = globe.y + Math.sin(a)*(globe.r - this.r);
+                this.vx *= -0.9; this.vy *= -0.9;
+            }
+        }
+        draw() {
+            if(!this.visible) return;
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+            ctx.fillStyle = this.color; ctx.fill();
+            ctx.fillStyle = "#fff"; ctx.font = "bold 8px Arial"; ctx.textAlign = "center";
+            ctx.fillText(this.n, this.x, this.y+3);
         }
     }
 
-    draw(){
-
-        if(!this.visible) return;
-
-        ctx.beginPath();
-        ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-
-        ctx.fillStyle = "#fff";
-        ctx.font = "bold 9px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText(this.num,this.x,this.y+3);
+    function init() {
+        balls = Array.from({length: 50}, (_, i) => new Ball(i+1));
+        render();
     }
-}
 
-function init(){
-
-    balls=[];
-
-    for(let i=0;i<100;i++){
-        balls.push(new Ball(i));
+    function render() {
+        ctx.clearRect(0,0,220,220);
+        balls.forEach(b => { b.update(); b.draw(); });
+        requestAnimationFrame(render);
     }
-}
 
-function animate(){
-
-    ctx.clearRect(0,0,300,300);
-
-    ctx.beginPath();
-    ctx.arc(globe.x,globe.y,globe.r,0,Math.PI*2);
-    ctx.strokeStyle="#555";
-    ctx.lineWidth=4;
-    ctx.stroke();
-
-    balls.forEach(b=>{
-        b.update();
-        b.draw();
+    // Formatage input
+    userNumsInput.addEventListener("input", (e) => {
+        let v = e.target.value.replace(/\D/g, "");
+        let r = "";
+        for(let i=0; i<v.length && i<6; i++) {
+            if(i>0 && i%2===0) r += " ";
+            r += v[i];
+        }
+        e.target.value = r;
     });
 
-    requestAnimationFrame(animate);
-}
+    drawBtn.onclick = () => {
+        if(userNumsInput.value.length < 8) return;
+        document.getElementById("status-pay").value = document.getElementById("bet-amount").value;
+        drawBtn.disabled = true;
+        isDrawing = true;
+        
+        // Netwaye bwat yo
+        for(let i=0; i<3; i++) {
+            let s = document.getElementById("s"+i);
+            s.innerText = ""; s.style.background = "transparent";
+        }
 
-init();
-animate();
+        let results = [];
+        setTimeout(() => runBallProcess(0, results), 3000);
+        setTimeout(() => runBallProcess(1, results), 6500);
+        setTimeout(() => runBallProcess(2, results), 10000);
+    };
 
-const numsInput = document.getElementById("nums");
+    function runBallProcess(idx, resArr) {
+        let pool = balls.filter(b => b.visible);
+        let b = pool[Math.floor(Math.random()*pool.length)];
+        b.visible = false;
+        resArr.push(b.n);
 
-numsInput.addEventListener("input",(e)=>{
+        ballActor.innerText = b.n;
+        ballActor.style.background = b.color;
+        ballActor.style.opacity = "1";
+        ballActor.style.transition = "none";
 
-    let v = e.target.value.replace(/\D/g,"");
-    let r = "";
+        // 1. Soti anlè tanbou a
+        ballActor.style.top = "50px"; 
+        ballActor.style.left = "110px";
 
-    for(let i=0;i<v.length && i<6;i++){
+        setTimeout(() => {
+            // 2. Ale nan Curve (Top-Right)
+            ballActor.style.transition = "all 0.6s ease-out";
+            ballActor.style.top = "20px";
+            ballActor.style.left = "260px";
+        }, 100);
 
-        if(i>0 && i%2===0) r+=" ";
+        setTimeout(() => {
+            // 3. Desann vètikal nan PVC a
+            ballActor.style.transition = "all 0.8s ease-in";
+            ballActor.style.top = "310px";
+        }, 800);
 
-        r += v[i];
+        setTimeout(() => {
+            // 4. Woule orizontal pou al chita
+            const target = document.getElementById("s"+idx).getBoundingClientRect();
+            const machine = document.querySelector(".machine-container").getBoundingClientRect();
+            ballActor.style.transition = "all 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28)";
+            ballActor.style.left = (target.left - machine.left) + "px";
+        }, 1600);
+
+        setTimeout(() => {
+            ballActor.style.opacity = "0";
+            const s = document.getElementById("s"+idx);
+            s.innerText = b.n;
+            s.style.background = b.color;
+            if(resArr.length === 3) finishDraw(resArr);
+        }, 2300);
     }
 
-    e.target.value = r;
-});
+    function finishDraw(res) {
+        isDrawing = false;
+        const miz = parseFloat(document.getElementById("bet-amount").value);
+        const mine = userNumsInput.value.split(" ");
+        let genyen = 0;
+        if(mine.includes(res[0])) genyen += miz*100;
+        if(mine.includes(res[1])) genyen += miz*50;
+        if(mine.includes(res[2])) genyen += miz*25;
 
-document.getElementById("btn").onclick = ()=>{
-
-    if(numsInput.value.length < 8){
-
-        document.getElementById("status").innerText =
-        "Mete 3 nimewo!";
-        return;
+        setTimeout(() => {
+            document.getElementById("modal").style.display = "flex";
+            document.getElementById("modal-content").innerHTML = `
+                <h2 style="color:#777">REZILTA FINAL</h2>
+                <h1 style="font-size:45px; margin:20px 0">${res.join(" - ")}</h1>
+                <h2 style="color:${genyen>0?'#0f0':'#f00'}">${genyen>0?"OU GENYEN "+genyen+" HTG":"PA GENYEN"}</h2>
+                <button onclick="location.reload()" style="margin-top:20px; width:100px; padding:10px; background:red;">OK</button>
+            `;
+            drawBtn.disabled = false;
+        }, 1000);
     }
 
-    document.getElementById("status").innerText =
-    "Tanbou a ap melanje boul yo...";
-
-    document.getElementById("peye").value =
-    document.getElementById("miz").value;
-
-    startDraw();
-};
-
-function startDraw(){
-
-    active = true;
-
-    document.getElementById("btn").disabled = true;
-
-    for(let i=0;i<3;i++){
-
-        let s = document.getElementById("s"+i);
-
-        s.innerHTML="";
-        s.style.background="#111";
-    }
-
-    setTimeout(()=>pickBall(0),4000);
-    setTimeout(()=>pickBall(1),7000);
-    setTimeout(()=>pickBall(2),10000);
-}
-
-let result = [];
-
-function pickBall(index){
-
-    const available = balls.filter(b=>b.visible);
-
-    const b = available[
-        Math.floor(Math.random()*available.length)
-    ];
-
-    b.visible = false;
-
-    result.push(b.num);
-
-    showTubeAnimation(b,index);
-
-    if(result.length===3){
-
-        setTimeout(()=>{
-            finishDraw();
-        },2000);
-    }
-}
-
-function showTubeAnimation(ball,index){
-
-    const tube = document.getElementById("tube");
-
-    const div = document.createElement("div");
-
-    div.className="ball-inside glow";
-
-    div.style.background = ball.color;
-
-    div.innerText = ball.num;
-
-    div.style.top = "0px";
-
-    tube.appendChild(div);
-
-    setTimeout(()=>{
-        div.style.top = "110px";
-    },100);
-
-    setTimeout(()=>{
-
-        div.remove();
-
-        let slot = document.getElementById("s"+index);
-
-        slot.innerText = ball.num;
-        slot.style.background = ball.color;
-
-    },1500);
-}
-
-function finishDraw(){
-
-    active = false;
-
-    const mine = numsInput.value.split(" ");
-
-    const miz = parseFloat(
-        document.getElementById("miz").value
-    );
-
-    let gain = 0;
-
-    if(mine.includes(result[0])) gain += miz*100;
-    if(mine.includes(result[1])) gain += miz*50;
-    if(mine.includes(result[2])) gain += miz*25;
-
-    const modal = document.getElementById("modal");
-
-    const content = document.getElementById("modal-content");
-
-    content.innerHTML = `
-    <h2 style="color:#999">REZILTA FINAL</h2>
-
-    <h1 style="font-size:42px;margin:15px 0;color:white">
-    ${result.join(" - ")}
-    </h1>
-
-    <h2 style="color:${gain>0?'#00ff66':'#ff4444'}">
-    ${gain>0 ? "OU GENYEN "+gain+" HTG" : "OU PA GENYEN"}
-    </h2>
-
-    <button onclick="closeModal()"
-    style="
-    margin-top:20px;
-    width:120px;
-    padding:12px;
-    border:none;
-    border-radius:10px;
-    background:red;
-    color:white;
-    font-weight:bold;">
-    OK
-    </button>
-    `;
-
-    modal.style.display="flex";
-
-    document.getElementById("btn").disabled = false;
-
-    document.getElementById("status").innerText =
-    "Tiraj fini.";
-
-    result = [];
-}
-
-function closeModal(){
-
-    document.getElementById("modal").style.display="none";
-}
-
+    init();
 </script>
-
 </body>
 </html>
