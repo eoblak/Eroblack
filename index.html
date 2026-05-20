@@ -19,7 +19,6 @@
             border: 4px solid #333; z-index: 5;
         }
 
-        /* PVC transparan U-Shape */
         .pvc-u-tube {
             position: absolute; top: 30px; right: 30px;
             width: 150px; height: 320px;
@@ -28,15 +27,6 @@
             backdrop-filter: blur(8px);
             border-radius: 0 80px 80px 0;
             border-left: none; z-index: 1;
-        }
-
-        .pvc-mouth {
-            position: absolute; top: 30px; left: 110px;
-            width: 110px; height: 40px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-bottom: none; border-right: none;
-            border-radius: 40px 0 0 0; z-index: 4;
         }
 
         .pvc-bottom {
@@ -58,7 +48,6 @@
             transition: all 0.8s linear; opacity: 0;
         }
 
-        /* UI Card */
         .ui-card { background: #111; padding: 15px; border-radius: 20px; border: 1px solid #222; margin-top: 10px; }
         .field { text-align: left; margin-bottom: 12px; }
         label { font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 5px; display: block; font-weight: bold; }
@@ -68,22 +57,19 @@
             padding: 12px; border-radius: 10px; font-size: 18px; text-align: center; outline: none;
         }
         
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
         
         button { 
             width: 100%; background: linear-gradient(#f00, #900); color: #fff; border: none; 
             padding: 16px; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer;
             box-shadow: 0 4px 0 #500; text-transform: uppercase; margin-top: 10px;
         }
-        button:disabled { opacity: 0.5; }
 
-        /* Modal pou Dyalòg yo */
+        /* Modal Dyalòg */
         #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-card { width: 85%; background: #1a1a1a; border: 2px solid #f00; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 0 30px rgba(255,0,0,0.3); }
+        .modal-card { width: 85%; background: #1a1a1a; border: 2px solid #f00; border-radius: 20px; padding: 25px; text-align: center; }
         .btn-row { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-modal { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
-        .btn-wi { background: #00ff00; color: #000; }
-        .btn-non { background: #ff0000; color: #fff; }
+        .btn-m { flex: 1; padding: 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -91,10 +77,8 @@
 <div id="app">
     <div class="machine-zone">
         <canvas id="canvas" width="210" height="210"></canvas>
-        <div class="pvc-mouth"></div>
         <div class="pvc-u-tube"></div>
         <div id="ball-actor" class="rolling-ball"></div>
-        
         <div class="pvc-bottom">
             <div class="slot" id="s0"></div>
             <div class="slot" id="s1"></div>
@@ -108,7 +92,11 @@
             <input type="text" id="user-nums" inputmode="numeric" placeholder="00 00 00" maxlength="8">
         </div>
 
-        <div class="grid-2">
+        <div class="grid-3">
+            <div class="field">
+                <label>Miz</label>
+                <input type="number" id="edittextmiz" placeholder="0" inputmode="numeric">
+            </div>
             <div class="field">
                 <label>Peye</label>
                 <input type="text" id="edittextpeye" value="0" readonly style="color: #00ff00;">
@@ -134,6 +122,7 @@
     const drawBtn = document.getElementById("draw-btn");
     
     const inputNums = document.getElementById("user-nums");
+    const inputMiz = document.getElementById("edittextmiz");
     const inputPeye = document.getElementById("edittextpeye");
     const inputGenyen = document.getElementById("edittextgenyen");
     const modal = document.getElementById("modal");
@@ -201,39 +190,42 @@
         e.target.value = r;
     });
 
-    // 1. DYALÒG KÒMANSMAN
+    // 1. DYALÒG KONFIMASYON (AVAN TIRAJ)
     drawBtn.onclick = () => {
-        if(inputNums.value.length < 8) return;
+        const mizVal = inputMiz.value;
+        if(inputNums.value.length < 8 || !mizVal || mizVal <= 0) {
+            alert("Tanpri ranpli nimewo ak miz la!");
+            return;
+        }
         
         modal.style.display = "flex";
         modalContent.innerHTML = `
             <h2 style="color:#fff">KONFIMASYON</h2>
-            <p style="margin: 20px 0; font-size: 18px;">Tiraj sa a koute w <b>20 goud</b>. Èske w dako?</p>
+            <p style="margin: 20px 0; font-size: 18px;">Tiraj sa a koute w <b>${mizVal} HTG</b>. Èske w dako?</p>
             <div class="btn-row">
-                <button class="btn-modal btn-non" onclick="modal.style.display='none'">NON</button>
-                <button class="btn-modal btn-wi" onclick="startDraw()">WI</button>
+                <button class="btn-m" style="background:#f00; color:#fff" onclick="modal.style.display='none'">NON</button>
+                <button class="btn-m" style="background:#0f0; color:#000" onclick="confirmStart()">WI</button>
             </div>
         `;
     };
 
-    function startDraw() {
+    function confirmStart() {
+        const mizVal = inputMiz.value;
+        inputPeye.value = mizVal; // Transfere miz la nan edittextpeye
         modal.style.display = "none";
         drawBtn.disabled = true;
         isLive = true;
         
-        // Peze "WI" fè bwat PEYE a vin 20
-        inputPeye.value = "20";
         inputGenyen.value = "0";
-
         for(let i=0; i<3; i++) {
             const s = document.getElementById("s"+i);
             s.innerText = ""; s.style.background = "transparent";
         }
 
         let res = [];
-        setTimeout(() => animateBall(0, res), 2500);
-        setTimeout(() => animateBall(1, res), 6000);
-        setTimeout(() => animateBall(2, res), 9500);
+        setTimeout(() => animateBall(0, res), 2000);
+        setTimeout(() => animateBall(1, res), 5000);
+        setTimeout(() => animateBall(2, res), 8000);
     }
 
     function animateBall(idx, resArr) {
@@ -279,27 +271,27 @@
         }, 2900);
     }
 
-    // 2. DYALÒG FINAL
+    // 2. DYALÒG REZILTA (NAN FEN)
     function finishGame(res) {
         isLive = false;
+        const mizVal = parseFloat(inputMiz.value);
         const mine = inputNums.value.split(" ");
-        let winAmount = 0;
+        let totalWin = 0;
 
-        // Pri: 1ye (2000), 2yèm (1000), 3yèm (500) - Egzanp baze sou 20 goud
-        if(mine.includes(res[0])) winAmount += 2000;
-        if(mine.includes(res[1])) winAmount += 1000;
-        if(mine.includes(res[2])) winAmount += 500;
+        // Lojik genyen
+        if(mine.includes(res[0])) totalWin += mizVal * 100;
+        if(mine.includes(res[1])) totalWin += mizVal * 50;
+        if(mine.includes(res[2])) totalWin += mizVal * 25;
 
-        // Mete valè nan edittextgenyen
-        inputGenyen.value = winAmount;
+        inputGenyen.value = totalWin; // Mete valè nan edittextgenyen
 
         setTimeout(() => {
             modal.style.display = "flex";
             modalContent.innerHTML = `
-                <h2 style="color:#888">REZILTA FINAL</h2>
-                <h1 style="font-size:50px; margin:20px 0; color:#fff;">${res.join("-")}</h1>
-                <h2 style="color:${winAmount>0?'#0f0':'#f44'}">${winAmount>0?"OU GENYEN: "+winAmount+" HTG":"OU PA GENYEN"}</h2>
-                <button class="btn-modal btn-non" onclick="modal.style.display='none'" style="margin-top:20px; max-width:150px;">OK</button>
+                <h2 style="color:#888">REZILTA TIRAJ</h2>
+                <h1 style="font-size:50px; margin:15px 0; color:#fff;">${res.join("-")}</h1>
+                <h2 style="color:${totalWin>0?'#0f0':'#f44'}">${totalWin>0?"OU GENYEN: "+totalWin+" HTG":"OU PA GENYEN"}</h2>
+                <button class="btn-m" style="background:#f00; color:#fff; margin-top:20px;" onclick="modal.style.display='none'">OK</button>
             `;
             drawBtn.disabled = false;
         }, 1000);
