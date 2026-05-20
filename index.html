@@ -8,9 +8,8 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { background: #000; color: #fff; font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
         
-        #app { width: 100%; max-width: 380px; padding: 15px; text-align: center; position: relative; }
+        #app { width: 100%; max-width: 380px; padding: 15px; text-align: center; }
 
-        /* Zòn Machin nan */
         .machine-zone { position: relative; width: 340px; height: 380px; margin: auto; }
         
         canvas { 
@@ -20,7 +19,7 @@
             border: 4px solid #333; z-index: 5;
         }
 
-        /* PVC transparan an fòm U */
+        /* PVC transparan U-Shape */
         .pvc-u-tube {
             position: absolute; top: 30px; right: 30px;
             width: 150px; height: 320px;
@@ -28,8 +27,7 @@
             border: 2px solid rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(8px);
             border-radius: 0 80px 80px 0;
-            border-left: none;
-            z-index: 1;
+            border-left: none; z-index: 1;
         }
 
         .pvc-mouth {
@@ -38,8 +36,7 @@
             background: rgba(255, 255, 255, 0.08);
             border: 2px solid rgba(255, 255, 255, 0.2);
             border-bottom: none; border-right: none;
-            border-radius: 40px 0 0 0;
-            z-index: 4;
+            border-radius: 40px 0 0 0; z-index: 4;
         }
 
         .pvc-bottom {
@@ -48,8 +45,7 @@
             background: rgba(255, 255, 255, 0.12);
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 30px;
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 6;
+            display: flex; justify-content: space-around; align-items: center; z-index: 6;
         }
 
         .slot { width: 45px; height: 45px; border-radius: 50%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
@@ -69,12 +65,10 @@
         
         input { 
             width: 100%; background: #000; border: 1px solid #333; color: #fff; 
-            padding: 12px; border-radius: 10px; font-size: 18px; text-align: center; 
-            outline: none;
+            padding: 12px; border-radius: 10px; font-size: 18px; text-align: center; outline: none;
         }
         
-        /* Layout pou Peye ak Genyen */
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         
         button { 
             width: 100%; background: linear-gradient(#f00, #900); color: #fff; border: none; 
@@ -83,8 +77,13 @@
         }
         button:disabled { opacity: 0.5; }
 
+        /* Modal pou Dyalòg yo */
         #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-card { width: 85%; background: #1a1a1a; border: 2px solid #f00; border-radius: 20px; padding: 30px; text-align: center; }
+        .modal-card { width: 85%; background: #1a1a1a; border: 2px solid #f00; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 0 30px rgba(255,0,0,0.3); }
+        .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-modal { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-wi { background: #00ff00; color: #000; }
+        .btn-non { background: #ff0000; color: #fff; }
     </style>
 </head>
 <body>
@@ -106,25 +105,21 @@
     <div class="ui-card">
         <div class="field">
             <label>Nimewo Ou Yo</label>
-            <input type="text" id="user-nums" inputmode="numeric" enterkeyhint="done" placeholder="00 00 00" maxlength="8">
+            <input type="text" id="user-nums" inputmode="numeric" placeholder="00 00 00" maxlength="8">
         </div>
 
-        <div class="grid-3">
-            <div class="field">
-                <label>Miz</label>
-                <input type="number" id="miz" value="20" inputmode="numeric">
-            </div>
+        <div class="grid-2">
             <div class="field">
                 <label>Peye</label>
-                <input type="text" id="peye" value="0" readonly style="color: #00ff00;">
+                <input type="text" id="edittextpeye" value="0" readonly style="color: #00ff00;">
             </div>
             <div class="field">
                 <label>Genyen</label>
-                <input type="text" id="genyen" value="NON" readonly style="color: #ff3333;">
+                <input type="text" id="edittextgenyen" value="0" readonly style="color: #ffcc00;">
             </div>
         </div>
 
-        <button id="draw-btn">TIRAJ</button>
+        <button id="draw-btn">KÒMANSE TIRAJ</button>
     </div>
 </div>
 
@@ -137,10 +132,12 @@
     const ctx = canvas.getContext("2d");
     const ballActor = document.getElementById("ball-actor");
     const drawBtn = document.getElementById("draw-btn");
+    
     const inputNums = document.getElementById("user-nums");
-    const inputMiz = document.getElementById("miz");
-    const inputPeye = document.getElementById("peye");
-    const inputGenyen = document.getElementById("genyen");
+    const inputPeye = document.getElementById("edittextpeye");
+    const inputGenyen = document.getElementById("edittextgenyen");
+    const modal = document.getElementById("modal");
+    const modalContent = document.getElementById("modal-content");
 
     let balls = [];
     let isLive = false;
@@ -204,15 +201,29 @@
         e.target.value = r;
     });
 
+    // 1. DYALÒG KÒMANSMAN
     drawBtn.onclick = () => {
         if(inputNums.value.length < 8) return;
         
-        // Reset pou nouvo tiraj
+        modal.style.display = "flex";
+        modalContent.innerHTML = `
+            <h2 style="color:#fff">KONFIMASYON</h2>
+            <p style="margin: 20px 0; font-size: 18px;">Tiraj sa a koute w <b>20 goud</b>. Èske w dako?</p>
+            <div class="btn-row">
+                <button class="btn-modal btn-non" onclick="modal.style.display='none'">NON</button>
+                <button class="btn-modal btn-wi" onclick="startDraw()">WI</button>
+            </div>
+        `;
+    };
+
+    function startDraw() {
+        modal.style.display = "none";
         drawBtn.disabled = true;
         isLive = true;
-        inputPeye.value = "0";
-        inputGenyen.value = "WAIT";
-        inputGenyen.style.color = "#ffcc00";
+        
+        // Peze "WI" fè bwat PEYE a vin 20
+        inputPeye.value = "20";
+        inputGenyen.value = "0";
 
         for(let i=0; i<3; i++) {
             const s = document.getElementById("s"+i);
@@ -223,7 +234,7 @@
         setTimeout(() => animateBall(0, res), 2500);
         setTimeout(() => animateBall(1, res), 6000);
         setTimeout(() => animateBall(2, res), 9500);
-    };
+    }
 
     function animateBall(idx, resArr) {
         let pool = balls.filter(b => b.visible);
@@ -235,14 +246,11 @@
         ballActor.style.background = b.color;
         ballActor.style.opacity = "1";
         ballActor.style.transition = "none";
-
-        ballActor.style.top = "70px"; 
-        ballActor.style.left = "110px";
+        ballActor.style.top = "70px"; ballActor.style.left = "110px";
 
         setTimeout(() => {
             ballActor.style.transition = "all 0.6s ease-out";
-            ballActor.style.top = "30px";
-            ballActor.style.left = "280px";
+            ballActor.style.top = "30px"; ballActor.style.left = "280px";
         }, 100);
 
         setTimeout(() => {
@@ -252,8 +260,7 @@
 
         setTimeout(() => {
             ballActor.style.transition = "all 0.5s ease-out";
-            ballActor.style.top = "310px";
-            ballActor.style.left = "240px";
+            ballActor.style.top = "310px"; ballActor.style.left = "240px";
         }, 1600);
 
         setTimeout(() => {
@@ -268,38 +275,31 @@
             const s = document.getElementById("s"+idx);
             s.innerText = b.n;
             s.style.background = b.color;
-            if(resArr.length === 3) calculateWinner(resArr);
+            if(resArr.length === 3) finishGame(resArr);
         }, 2900);
     }
 
-    function calculateWinner(res) {
+    // 2. DYALÒG FINAL
+    function finishGame(res) {
         isLive = false;
-        const mizVal = parseFloat(inputMiz.value) || 0;
         const mine = inputNums.value.split(" ");
-        let totalWin = 0;
+        let winAmount = 0;
 
-        // Lojik genyen: 1ye boul (x100), 2yèm (x50), 3yèm (x25)
-        if(mine.includes(res[0])) totalWin += mizVal * 100;
-        if(mine.includes(res[1])) totalWin += mizVal * 50;
-        if(mine.includes(res[2])) totalWin += mizVal * 25;
+        // Pri: 1ye (2000), 2yèm (1000), 3yèm (500) - Egzanp baze sou 20 goud
+        if(mine.includes(res[0])) winAmount += 2000;
+        if(mine.includes(res[1])) winAmount += 1000;
+        if(mine.includes(res[2])) winAmount += 500;
 
-        // Mete valè yo nan edittext yo
-        inputPeye.value = totalWin;
-        if(totalWin > 0) {
-            inputGenyen.value = "WI";
-            inputGenyen.style.color = "#00ff00";
-        } else {
-            inputGenyen.value = "NON";
-            inputGenyen.style.color = "#ff3333";
-        }
+        // Mete valè nan edittextgenyen
+        inputGenyen.value = winAmount;
 
         setTimeout(() => {
-            document.getElementById("modal").style.display = "flex";
-            document.getElementById("modal-content").innerHTML = `
-                <h2 style="color:#888">REZILTA TIRAJ</h2>
-                <h1 style="font-size:50px; margin:20px 0">${res.join("-")}</h1>
-                <h2 style="color:${totalWin>0?'#0f0':'#f44'}">${totalWin>0?"OU TOUCHE: "+totalWin+" HTG":"OU PA GENYEN"}</h2>
-                <button onclick="document.getElementById('modal').style.display='none'" style="margin-top:20px; width:100px; background:#f00;">OK</button>
+            modal.style.display = "flex";
+            modalContent.innerHTML = `
+                <h2 style="color:#888">REZILTA FINAL</h2>
+                <h1 style="font-size:50px; margin:20px 0; color:#fff;">${res.join("-")}</h1>
+                <h2 style="color:${winAmount>0?'#0f0':'#f44'}">${winAmount>0?"OU GENYEN: "+winAmount+" HTG":"OU PA GENYEN"}</h2>
+                <button class="btn-modal btn-non" onclick="modal.style.display='none'" style="margin-top:20px; max-width:150px;">OK</button>
             `;
             drawBtn.disabled = false;
         }, 1000);
