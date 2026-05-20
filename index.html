@@ -3,116 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Loto Pro Max - L-Curve PVC</title>
+    <title>Loto Kreyòl</title>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { background: #000; color: #fff; font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
         
-        #app { width: 100%; max-width: 380px; padding: 15px; background: #111; border-radius: 30px; border: 2px solid #333; text-align: center; box-shadow: 0 0 50px rgba(255,0,0,0.15); position: relative; }
+        #app { width: 100%; max-width: 380px; padding: 15px; text-align: center; position: relative; }
 
-        h1 { font-size: 22px; color: #ff3333; margin-bottom: 10px; letter-spacing: 2px; text-shadow: 0 0 10px rgba(255,0,0,0.5); }
-
-        /* Zòn Machin nan */
-        .machine-container { position: relative; width: 340px; height: 380px; margin: auto; border-radius: 20px; overflow: hidden; background: radial-gradient(circle, #1a1a1a, #000); }
+        /* Tanbou a ki kole ak bouch PVC a */
+        .machine-zone { position: relative; width: 340px; height: 380px; margin: auto; }
         
-        /* Tanbou a */
         canvas { 
-            position: absolute; top: 60px; left: 15px; 
-            width: 200px; height: 200px; border-radius: 50%; 
-            background: #000; border: 4px solid #444; z-index: 5;
-            box-shadow: inset 0 0 20px rgba(255,255,255,0.1);
+            position: absolute; top: 70px; left: 10px; 
+            width: 210px; height: 210px; border-radius: 50%; 
+            background: radial-gradient(circle, #222, #000); 
+            border: 4px solid #333; z-index: 5;
         }
 
-        /* PVC an fòm L (Curve la) */
-        .pvc-l-path {
-            position: absolute; top: 15px; right: 20px;
-            width: 140px; height: 320px;
-            border-top: 40px solid rgba(255,255,255,0.1);
-            border-right: 40px solid rgba(255,255,255,0.1);
-            border-radius: 0 70px 0 0;
+        /* PVC transparan an fòm U (Koub anlè ak anba) */
+        .pvc-u-tube {
+            position: absolute; top: 30px; right: 30px;
+            width: 150px; height: 320px;
+            /* Modèl transparan bèl la */
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            /* Fòm U a */
+            border-radius: 0 80px 80px 0;
+            border-left: none;
             z-index: 1;
         }
 
-        /* Chimen kote boul yo repoze a (Horizontal anba) */
-        .resting-pvc {
-            position: absolute; bottom: 15px; left: 20px;
-            width: 240px; height: 60px;
+        /* Bouch PVC a ki kole ak Tanbou a */
+        .pvc-mouth {
+            position: absolute; top: 30px; left: 110px;
+            width: 110px; height: 40px;
             background: rgba(255, 255, 255, 0.08);
             border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 30px;
-            display: flex; justify-content: space-around; align-items: center;
-            backdrop-filter: blur(8px); z-index: 4;
+            border-bottom: none; border-right: none;
+            border-radius: 40px 0 0 0;
+            z-index: 4;
         }
 
-        .slot { width: 48px; height: 48px; border-radius: 50%; background: #000; border: 1px dashed #666; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; color: #fff; }
+        /* Chimen anba kote boul yo rete (Horizontal) */
+        .pvc-bottom {
+            position: absolute; bottom: 30px; left: 10px;
+            width: 230px; height: 60px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 30px;
+            display: flex; justify-content: space-around; align-items: center;
+            z-index: 6;
+        }
 
-        /* Boul k ap fè mouvman an */
+        .slot { width: 45px; height: 45px; border-radius: 50%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
+
         .rolling-ball {
             position: absolute; width: 38px; height: 38px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-weight: bold; color: #fff; font-size: 16px; z-index: 100;
-            box-shadow: inset -4px -4px 10px rgba(0,0,0,0.6);
-            transition: all 0.7s ease-in-out; opacity: 0;
+            box-shadow: inset -4px -4px 8px rgba(0,0,0,0.5);
+            transition: all 0.8s linear; opacity: 0;
         }
 
-        /* UI Panel */
-        .ui-panel { background: #1a1a1a; padding: 15px; border-radius: 20px; margin-top: 15px; border: 1px solid #333; }
-        .field { display: flex; flex-direction: column; text-align: left; margin-bottom: 10px; }
-        label { font-size: 11px; color: #aaa; margin-bottom: 4px; font-weight: bold; text-transform: uppercase; }
-        input { background: #000; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 10px; font-size: 18px; text-align: center; width: 100%; outline: none; }
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        /* Panel UI */
+        .ui-card { background: #111; padding: 15px; border-radius: 20px; border: 1px solid #222; margin-top: 10px; }
+        .field { text-align: left; margin-bottom: 12px; }
+        label { font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 5px; display: block; }
         
-        button { 
-            width: 100%; background: linear-gradient(#ff1111, #880000); color: #fff; border: none; 
-            padding: 16px; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer;
-            box-shadow: 0 4px 0 #550000; text-transform: uppercase; margin-top: 5px;
+        /* Input Chif sèlman */
+        input { 
+            width: 100%; background: #000; border: 1px solid #333; color: #fff; 
+            padding: 14px; border-radius: 10px; font-size: 20px; text-align: center; 
+            outline: none;
         }
-        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #550000; }
-        button:disabled { opacity: 0.5; filter: grayscale(1); }
+        
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { 
+            width: 100%; background: linear-gradient(#f00, #900); color: #fff; border: none; 
+            padding: 16px; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer;
+            box-shadow: 0 4px 0 #500; text-transform: uppercase;
+        }
+        button:disabled { opacity: 0.5; }
 
-        /* Modal pou Rezilta */
-        #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-card { width: 85%; background: #111; border: 3px solid #ff0000; border-radius: 25px; padding: 30px; text-align: center; animation: zoomIn 0.3s ease; }
-        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-card { width: 85%; background: #1a1a1a; border: 2px solid #f00; border-radius: 20px; padding: 30px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <h1>LOTO PRO MAX</h1>
-
-    <div class="machine-container">
-        <canvas id="canvas" width="200" height="200"></canvas>
-        
-        <div class="pvc-l-path"></div>
-        
+    <div class="machine-zone">
+        <canvas id="canvas" width="210" height="210"></canvas>
+        <div class="pvc-mouth"></div>
+        <div class="pvc-u-tube"></div>
         <div id="ball-actor" class="rolling-ball"></div>
         
-        <div class="resting-pvc">
+        <div class="pvc-bottom">
             <div class="slot" id="s0"></div>
             <div class="slot" id="s1"></div>
             <div class="slot" id="s2"></div>
         </div>
     </div>
 
-    <div class="ui-panel">
+    <div class="ui-card">
         <div class="field">
-            <label>Mete 3 Boul Ou Yo (ex: 01 50 99)</label>
-            <input type="text" id="user-nums" placeholder="00 00 00" maxlength="8">
+            <label>NIMEWO PA W YO (3 BOUL)</label>
+            <input type="text" id="user-nums" inputmode="numeric" enterkeyhint="done" placeholder="00 00 00" maxlength="8">
         </div>
-        
         <div class="row">
             <div class="field">
-                <label>Miz (HTG)</label>
-                <input type="number" id="bet-amount" value="20">
+                <label>MIZ (HTG)</label>
+                <input type="number" id="bet" value="20" inputmode="numeric">
             </div>
             <div class="field">
-                <label>Touche / Genyen</label>
-                <input type="text" id="status-pay" value="0" readonly style="color: #00ff00; font-weight: bold;">
+                <label>GENYEN / TOUCHE</label>
+                <input type="text" id="win-display" value="0" readonly style="color: #ffcc00;">
             </div>
         </div>
-
-        <button id="draw-btn">KÒMANSE TIRAJ</button>
+        <button id="draw-btn">TIRAJ</button>
     </div>
 </div>
 
@@ -125,31 +134,31 @@
     const ctx = canvas.getContext("2d");
     const ballActor = document.getElementById("ball-actor");
     const drawBtn = document.getElementById("draw-btn");
-    const userNumsInput = document.getElementById("user-nums");
+    const input = document.getElementById("user-nums");
 
     let balls = [];
-    let isDrawing = false;
-    const globe = { x: 100, y: 100, r: 96 };
+    let isLive = false;
+    const globe = { x: 105, y: 105, r: 100 };
 
     class Ball {
         constructor(n) {
             this.n = n < 10 ? "0"+n : ""+n;
             this.r = 10;
-            this.color = `hsl(${Math.random()*360}, 80%, 55%)`;
+            this.color = `hsl(${Math.random()*360}, 75%, 60%)`;
             this.reset();
         }
         reset() {
-            this.x = globe.x + (Math.random()-.5)*120;
-            this.y = globe.y + (Math.random()-.5)*120;
+            this.x = globe.x + (Math.random()-.5)*140;
+            this.y = globe.y + (Math.random()-.5)*140;
             this.vx = (Math.random()-.5)*8;
             this.vy = (Math.random()-.5)*8;
             this.visible = true;
         }
         update() {
             if(!this.visible) return;
-            let f = isDrawing ? 2.5 : 0.4;
-            this.vx += (Math.random()-.5)*f;
-            this.vy += (Math.random()-.5)*f;
+            let spd = isLive ? 2.5 : 0.4;
+            this.vx += (Math.random()-.5)*spd;
+            this.vy += (Math.random()-.5)*spd;
             this.x += this.vx; this.y += this.vy;
             let d = Math.hypot(this.x - globe.x, this.y - globe.y);
             if(d + this.r > globe.r) {
@@ -169,17 +178,18 @@
     }
 
     function init() {
-        balls = Array.from({length: 60}, (_, i) => new Ball(i+1));
-        render();
+        balls = Array.from({length: 50}, (_, i) => new Ball(i+1));
+        loop();
     }
 
-    function render() {
-        ctx.clearRect(0,0,200,200);
+    function loop() {
+        ctx.clearRect(0,0,210,210);
         balls.forEach(b => { b.update(); b.draw(); });
-        requestAnimationFrame(render);
+        requestAnimationFrame(loop);
     }
 
-    userNumsInput.addEventListener("input", (e) => {
+    // Spasyasyon otomatik (00 00 00)
+    input.addEventListener("input", (e) => {
         let v = e.target.value.replace(/\D/g, "");
         let r = "";
         for(let i=0; i<v.length && i<6; i++) {
@@ -190,23 +200,22 @@
     });
 
     drawBtn.onclick = () => {
-        if(userNumsInput.value.length < 8) { alert("Tanpri mete 3 boul!"); return; }
+        if(input.value.length < 8) return;
         drawBtn.disabled = true;
-        isDrawing = true;
+        isLive = true;
         
-        // Reset slots
         for(let i=0; i<3; i++) {
             const s = document.getElementById("s"+i);
             s.innerText = ""; s.style.background = "transparent";
         }
 
-        let results = [];
-        setTimeout(() => animateLBall(0, results), 3000);
-        setTimeout(() => animateLBall(1, results), 7000);
-        setTimeout(() => animateLBall(2, results), 11000);
+        let res = [];
+        setTimeout(() => animateBall(0, res), 2500);
+        setTimeout(() => animateBall(1, res), 6500);
+        setTimeout(() => animateBall(2, res), 10500);
     };
 
-    function animateLBall(idx, resArr) {
+    function animateBall(idx, resArr) {
         let pool = balls.filter(b => b.visible);
         let b = pool[Math.floor(Math.random()*pool.length)];
         b.visible = false;
@@ -217,58 +226,65 @@
         ballActor.style.opacity = "1";
         ballActor.style.transition = "none";
 
-        // 1. Soti anlè tanbou a (nan tib la)
-        ballActor.style.top = "60px"; 
-        ballActor.style.left = "100px";
+        // 1. Soti anndan Tanbou a al nan PVC a
+        ballActor.style.top = "70px"; 
+        ballActor.style.left = "110px";
 
         setTimeout(() => {
-            // 2. Swiv koub la (L-Curve)
+            // 2. Swiv Koub anlè a (U-top)
             ballActor.style.transition = "all 0.6s ease-out";
-            ballActor.style.top = "15px";
+            ballActor.style.top = "30px";
             ballActor.style.left = "280px";
         }, 100);
 
         setTimeout(() => {
-            // 3. Desann dwat nan tib la (Vètikal)
+            // 3. Glise desann vètikal
             ballActor.style.transition = "all 0.8s ease-in";
-            ballActor.style.top = "315px";
+            ballActor.style.top = "280px";
         }, 800);
 
         setTimeout(() => {
-            // 4. Woule orizontal nan tib repo a
+            // 4. Swiv Koub anba a pou antre nan tib repo a
+            ballActor.style.transition = "all 0.5s ease-out";
+            ballActor.style.top = "310px";
+            ballActor.style.left = "240px";
+        }, 1600);
+
+        setTimeout(() => {
+            // 5. Woule orizontal pou al chita
             const target = document.getElementById("s"+idx).getBoundingClientRect();
-            const machine = document.querySelector(".machine-container").getBoundingClientRect();
-            ballActor.style.transition = "all 0.8s cubic-bezier(0.18, 0.89, 0.32, 1.28)";
+            const machine = document.querySelector(".machine-zone").getBoundingClientRect();
+            ballActor.style.transition = "all 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28)";
             ballActor.style.left = (target.left - machine.left) + "px";
-        }, 1700);
+        }, 2100);
 
         setTimeout(() => {
             ballActor.style.opacity = "0";
             const s = document.getElementById("s"+idx);
             s.innerText = b.n;
             s.style.background = b.color;
-            if(resArr.length === 3) finishDraw(resArr);
-        }, 2600);
+            if(resArr.length === 3) finish(resArr);
+        }, 2900);
     }
 
-    function finishDraw(res) {
-        isDrawing = false;
-        const miz = parseFloat(document.getElementById("bet-amount").value);
-        const mine = userNumsInput.value.split(" ");
-        let genyen = 0;
-        if(mine.includes(res[0])) genyen += miz*100;
-        if(mine.includes(res[1])) genyen += miz*50;
-        if(mine.includes(res[2])) genyen += miz*25;
+    function finish(res) {
+        isLive = false;
+        const bet = parseFloat(document.getElementById("bet").value);
+        const mine = input.value.split(" ");
+        let win = 0;
+        if(mine.includes(res[0])) win += bet*100;
+        if(mine.includes(res[1])) win += bet*50;
+        if(mine.includes(res[2])) win += bet*25;
 
-        document.getElementById("status-pay").value = genyen + " HTG";
+        document.getElementById("win-display").value = win + " HTG";
 
         setTimeout(() => {
             document.getElementById("modal").style.display = "flex";
             document.getElementById("modal-content").innerHTML = `
-                <h3 style="color:#aaa">REZILTA TIRAJ LA</h3>
-                <h1 style="font-size:50px; margin:20px 0; letter-spacing:5px;">${res.join("-")}</h1>
-                <h2 style="color:${genyen>0?'#00ff00':'#ff0000'}">${genyen>0?"BRAVO! OU GENYEN "+genyen+" HTG":"OU PA GENYEN ANYEN"}</h2>
-                <button onclick="document.getElementById('modal').style.display='none'" style="margin-top:25px; width:120px; background:#ff0000; box-shadow:none;">OK</button>
+                <h2 style="color:#777">REZILTA TIRAJ</h2>
+                <h1 style="font-size:50px; margin:20px 0">${res.join("-")}</h1>
+                <h2 style="color:${win>0?'#0f0':'#f00'}">${win>0?"OU GENYEN "+win+" HTG":"OU PA GENYEN"}</h2>
+                <button onclick="document.getElementById('modal').style.display='none'" style="margin-top:20px; width:100px; background:#f00;">OK</button>
             `;
             drawBtn.disabled = false;
         }, 1200);
