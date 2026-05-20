@@ -10,7 +10,7 @@
         
         #app { width: 100%; max-width: 380px; padding: 15px; text-align: center; position: relative; }
 
-        /* Tanbou a ki kole ak bouch PVC a */
+        /* Zòn Machin nan */
         .machine-zone { position: relative; width: 340px; height: 380px; margin: auto; }
         
         canvas { 
@@ -20,21 +20,18 @@
             border: 4px solid #333; z-index: 5;
         }
 
-        /* PVC transparan an fòm U (Koub anlè ak anba) */
+        /* PVC transparan an fòm U */
         .pvc-u-tube {
             position: absolute; top: 30px; right: 30px;
             width: 150px; height: 320px;
-            /* Modèl transparan bèl la */
             background: rgba(255, 255, 255, 0.08);
             border: 2px solid rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(8px);
-            /* Fòm U a */
             border-radius: 0 80px 80px 0;
             border-left: none;
             z-index: 1;
         }
 
-        /* Bouch PVC a ki kole ak Tanbou a */
         .pvc-mouth {
             position: absolute; top: 30px; left: 110px;
             width: 110px; height: 40px;
@@ -45,7 +42,6 @@
             z-index: 4;
         }
 
-        /* Chimen anba kote boul yo rete (Horizontal) */
         .pvc-bottom {
             position: absolute; bottom: 30px; left: 10px;
             width: 230px; height: 60px;
@@ -66,23 +62,24 @@
             transition: all 0.8s linear; opacity: 0;
         }
 
-        /* Panel UI */
+        /* UI Card */
         .ui-card { background: #111; padding: 15px; border-radius: 20px; border: 1px solid #222; margin-top: 10px; }
         .field { text-align: left; margin-bottom: 12px; }
-        label { font-size: 11px; color: #888; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        label { font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 5px; display: block; font-weight: bold; }
         
-        /* Input Chif sèlman */
         input { 
             width: 100%; background: #000; border: 1px solid #333; color: #fff; 
-            padding: 14px; border-radius: 10px; font-size: 20px; text-align: center; 
+            padding: 12px; border-radius: 10px; font-size: 18px; text-align: center; 
             outline: none;
         }
         
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        /* Layout pou Peye ak Genyen */
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        
         button { 
             width: 100%; background: linear-gradient(#f00, #900); color: #fff; border: none; 
             padding: 16px; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer;
-            box-shadow: 0 4px 0 #500; text-transform: uppercase;
+            box-shadow: 0 4px 0 #500; text-transform: uppercase; margin-top: 10px;
         }
         button:disabled { opacity: 0.5; }
 
@@ -108,19 +105,25 @@
 
     <div class="ui-card">
         <div class="field">
-            <label>NIMEWO PA W YO (3 BOUL)</label>
+            <label>Nimewo Ou Yo</label>
             <input type="text" id="user-nums" inputmode="numeric" enterkeyhint="done" placeholder="00 00 00" maxlength="8">
         </div>
-        <div class="row">
+
+        <div class="grid-3">
             <div class="field">
-                <label>MIZ (HTG)</label>
-                <input type="number" id="bet" value="20" inputmode="numeric">
+                <label>Miz</label>
+                <input type="number" id="miz" value="20" inputmode="numeric">
             </div>
             <div class="field">
-                <label>GENYEN / TOUCHE</label>
-                <input type="text" id="win-display" value="0" readonly style="color: #ffcc00;">
+                <label>Peye</label>
+                <input type="text" id="peye" value="0" readonly style="color: #00ff00;">
+            </div>
+            <div class="field">
+                <label>Genyen</label>
+                <input type="text" id="genyen" value="NON" readonly style="color: #ff3333;">
             </div>
         </div>
+
         <button id="draw-btn">TIRAJ</button>
     </div>
 </div>
@@ -134,7 +137,10 @@
     const ctx = canvas.getContext("2d");
     const ballActor = document.getElementById("ball-actor");
     const drawBtn = document.getElementById("draw-btn");
-    const input = document.getElementById("user-nums");
+    const inputNums = document.getElementById("user-nums");
+    const inputMiz = document.getElementById("miz");
+    const inputPeye = document.getElementById("peye");
+    const inputGenyen = document.getElementById("genyen");
 
     let balls = [];
     let isLive = false;
@@ -188,8 +194,7 @@
         requestAnimationFrame(loop);
     }
 
-    // Spasyasyon otomatik (00 00 00)
-    input.addEventListener("input", (e) => {
+    inputNums.addEventListener("input", (e) => {
         let v = e.target.value.replace(/\D/g, "");
         let r = "";
         for(let i=0; i<v.length && i<6; i++) {
@@ -200,10 +205,15 @@
     });
 
     drawBtn.onclick = () => {
-        if(input.value.length < 8) return;
+        if(inputNums.value.length < 8) return;
+        
+        // Reset pou nouvo tiraj
         drawBtn.disabled = true;
         isLive = true;
-        
+        inputPeye.value = "0";
+        inputGenyen.value = "WAIT";
+        inputGenyen.style.color = "#ffcc00";
+
         for(let i=0; i<3; i++) {
             const s = document.getElementById("s"+i);
             s.innerText = ""; s.style.background = "transparent";
@@ -211,8 +221,8 @@
 
         let res = [];
         setTimeout(() => animateBall(0, res), 2500);
-        setTimeout(() => animateBall(1, res), 6500);
-        setTimeout(() => animateBall(2, res), 10500);
+        setTimeout(() => animateBall(1, res), 6000);
+        setTimeout(() => animateBall(2, res), 9500);
     };
 
     function animateBall(idx, resArr) {
@@ -226,32 +236,27 @@
         ballActor.style.opacity = "1";
         ballActor.style.transition = "none";
 
-        // 1. Soti anndan Tanbou a al nan PVC a
         ballActor.style.top = "70px"; 
         ballActor.style.left = "110px";
 
         setTimeout(() => {
-            // 2. Swiv Koub anlè a (U-top)
             ballActor.style.transition = "all 0.6s ease-out";
             ballActor.style.top = "30px";
             ballActor.style.left = "280px";
         }, 100);
 
         setTimeout(() => {
-            // 3. Glise desann vètikal
             ballActor.style.transition = "all 0.8s ease-in";
             ballActor.style.top = "280px";
         }, 800);
 
         setTimeout(() => {
-            // 4. Swiv Koub anba a pou antre nan tib repo a
             ballActor.style.transition = "all 0.5s ease-out";
             ballActor.style.top = "310px";
             ballActor.style.left = "240px";
         }, 1600);
 
         setTimeout(() => {
-            // 5. Woule orizontal pou al chita
             const target = document.getElementById("s"+idx).getBoundingClientRect();
             const machine = document.querySelector(".machine-zone").getBoundingClientRect();
             ballActor.style.transition = "all 0.7s cubic-bezier(0.18, 0.89, 0.32, 1.28)";
@@ -263,31 +268,41 @@
             const s = document.getElementById("s"+idx);
             s.innerText = b.n;
             s.style.background = b.color;
-            if(resArr.length === 3) finish(resArr);
+            if(resArr.length === 3) calculateWinner(resArr);
         }, 2900);
     }
 
-    function finish(res) {
+    function calculateWinner(res) {
         isLive = false;
-        const bet = parseFloat(document.getElementById("bet").value);
-        const mine = input.value.split(" ");
-        let win = 0;
-        if(mine.includes(res[0])) win += bet*100;
-        if(mine.includes(res[1])) win += bet*50;
-        if(mine.includes(res[2])) win += bet*25;
+        const mizVal = parseFloat(inputMiz.value) || 0;
+        const mine = inputNums.value.split(" ");
+        let totalWin = 0;
 
-        document.getElementById("win-display").value = win + " HTG";
+        // Lojik genyen: 1ye boul (x100), 2yèm (x50), 3yèm (x25)
+        if(mine.includes(res[0])) totalWin += mizVal * 100;
+        if(mine.includes(res[1])) totalWin += mizVal * 50;
+        if(mine.includes(res[2])) totalWin += mizVal * 25;
+
+        // Mete valè yo nan edittext yo
+        inputPeye.value = totalWin;
+        if(totalWin > 0) {
+            inputGenyen.value = "WI";
+            inputGenyen.style.color = "#00ff00";
+        } else {
+            inputGenyen.value = "NON";
+            inputGenyen.style.color = "#ff3333";
+        }
 
         setTimeout(() => {
             document.getElementById("modal").style.display = "flex";
             document.getElementById("modal-content").innerHTML = `
-                <h2 style="color:#777">REZILTA TIRAJ</h2>
+                <h2 style="color:#888">REZILTA TIRAJ</h2>
                 <h1 style="font-size:50px; margin:20px 0">${res.join("-")}</h1>
-                <h2 style="color:${win>0?'#0f0':'#f00'}">${win>0?"OU GENYEN "+win+" HTG":"OU PA GENYEN"}</h2>
+                <h2 style="color:${totalWin>0?'#0f0':'#f44'}">${totalWin>0?"OU TOUCHE: "+totalWin+" HTG":"OU PA GENYEN"}</h2>
                 <button onclick="document.getElementById('modal').style.display='none'" style="margin-top:20px; width:100px; background:#f00;">OK</button>
             `;
             drawBtn.disabled = false;
-        }, 1200);
+        }, 1000);
     }
 
     init();
