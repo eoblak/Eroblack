@@ -1,263 +1,305 @@
 <!DOCTYPE html>
 <html lang="ht">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Loto Pro - Real Animasyon</title>
-    <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background: #000; color: #fff; font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        
-        #app { width: 100%; max-width: 360px; padding: 10px; text-align: center; }
-
-        /* Tanbou Look Pro */
-        .drum-container { position: relative; width: 240px; height: 240px; margin: 0 auto; }
-        canvas { 
-            background: radial-gradient(circle, #1a1a1a 0%, #000 100%); 
-            border-radius: 50%; border: 6px solid #333; 
-            width: 100%; height: 100%; box-shadow: 0 0 30px rgba(255,0,0,0.2);
-            z-index: 2; position: relative;
-        }
-
-        /* Ti Chimen PVC a */
-        .pvc-pipe {
-            position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%);
-            width: 180px; height: 50px;
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 0 0 25px 25px;
-            z-index: 1; display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(8px); padding: 5px; gap: 8px;
-        }
-
-        .slot {
-            width: 42px; height: 42px; border-radius: 50%;
-            background: rgba(0,0,0,0.6); border: 1px solid #444;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 18px; transition: all 0.5s;
-        }
-
-        /* Boul k ap woule a */
-        .rolling-ball {
-            position: fixed; width: 38px; height: 38px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; color: #fff; font-size: 16px; z-index: 99;
-            box-shadow: inset -4px -4px 10px rgba(0,0,0,0.5), 2px 2px 5px rgba(0,0,0,0.5);
-            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* UI */
-        .ui-box { margin-top: 60px; background: #111; padding: 15px; border-radius: 15px; border: 1px solid #222; }
-        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        label { display: block; font-size: 10px; color: #777; text-align: left; margin-bottom: 3px; }
-        input { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 18px; text-align: center; }
-        
-        button { 
-            width: 100%; background: linear-gradient(#f00, #900); color: #fff; border: none; 
-            padding: 16px; border-radius: 10px; font-weight: bold; font-size: 18px; cursor: pointer;
-            box-shadow: 0 4px 0 #500; text-transform: uppercase;
-        }
-        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #500; }
-
-        /* Custom Modal pou l pa bloke App la */
-        #custom-modal {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000;
-        }
-        .modal-body { background: #1a1a1a; padding: 30px; border-radius: 20px; border: 2px solid #f00; text-align: center; width: 85%; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Loto Pro - Real Animasyon image_0.png</title>
+<style>
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { margin: 0; background: #fff; color: #333; font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+#app { width: 100%; max-width: 400px; padding: 10px; text-align: center; }
+/* Container pou imaj la */
+.drum-image-container {
+position: relative;
+width: 300px; /* Ajiste selon lajè imaj la */
+height: 350px; /* Ajiste selon wotè imaj la */
+margin: 0 auto;
+}
+/* Imaj prensipal la */
+.loto-image {
+width: 100%;
+height: 100%;
+display: block;
+}
+/* Canvas transparan sou tèt la pou boul k ap sote anndan */
+canvas {
+position: absolute;
+top: 25px; /* Aliyen ak sant glòb la */
+left: 17px;
+width: 200px; /* Dimansyon pati transparan glòb la */
+height: 200px;
+border-radius: 50%;
+z-index: 2; /* Pi wo pase imaj la */
+}
+/* --- Lojik pou Chimen Sòti yo --- */
+/* Pwopriyete de baz pou nenpòt boul sou chimen an */
+.path-ball {
+position: absolute;
+width: 30px; /* Dimansyon boul sou chimen an */
+height: 30px;
+border-radius: 50%;
+display: flex; align-items: center; justify-content: center;
+font-weight: bold; color: #fff; font-size: 14px;
+box-shadow: inset -3px -3px 8px rgba(0,0,0,0.4), 1px 1px 3px rgba(0,0,0,0.5);
+transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+opacity: 0; /* Kache okòmansman */
+z-index: 3;
+}
+/* --- Boul sou Chimen Roulè an wo (Curve) --- */
+#curve-path-ball {
+/* Kòmanse nan twou sòti an wo a */
+top: 20px;
+left: 215px;
+}
+/* --- Boul k ap woule sou Chimen an ba a (Horizontal) --- */
+#collect-path-ball {
+/* Kòmanse nan kòmansman chimen horizontal la */
+bottom: 60px;
+left: 170px;
+}
+/* --- Bwat Koleksyon Final yo (Slots) --- */
+.pvc-pipe {
+position: absolute; bottom: 35px; left: 15px; /* Bese yon ti kras */
+width: 140px; height: 40px;
+display: flex; align-items: center; justify-content: flex-start;
+z-index: 1; /* Anba track la */
+gap: 5px;
+padding-left: 5px;
+}
+.slot {
+width: 35px; height: 35px; border-radius: 50%;
+background: rgba(0,0,0,0.1); /* Prèske transparan pou soti imaj la */
+border: 1px dashed #777; /* Pou wè kote yo ye pandan y ap vid */
+display: flex; align-items: center; justify-content: center;
+font-weight: bold; font-size: 16px; color: #fff; transition: all 0.5s;
+}
+/* UI */
+.ui-box { margin-top: 10px; background: #f0f0f0; padding: 15px; border-radius: 15px; border: 1px solid #ccc; z-index: 5; position: relative; }
+.input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+label { display: block; font-size: 10px; color: #777; text-align: left; margin-bottom: 3px; }
+input { width: 100%; background: #fff; border: 1px solid #ccc; color: #333; padding: 12px; border-radius: 8px; font-size: 18px; text-align: center; }
+button {
+width: 100%; background: linear-gradient(#4CAF50, #2E7D32); color: #fff; border: none;
+padding: 16px; border-radius: 10px; font-weight: bold; font-size: 18px; cursor: pointer;
+box-shadow: 0 4px 0 #1B5E20; text-transform: uppercase;
+}
+button:active { transform: translateY(2px); box-shadow: 0 2px 0 #1B5E20; }
+button:disabled { background: #ccc; box-shadow: none; cursor: default; }
+/* Custom Modal */
+#custom-modal {
+position: fixed; top:0; left:0; width:100%; height:100%;
+background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 1000;
+}
+.modal-body { background: #fff; padding: 30px; border-radius: 20px; border: 2px solid #4CAF50; text-align: center; width: 85%; }
+</style>
 </head>
 <body>
-
-    <div id="app">
-        <div class="drum-container">
-            <canvas id="lotoCanvas" width="300" height="300"></canvas>
-            <div class="pvc-pipe">
-                <div class="slot" id="s0"></div>
-                <div class="slot" id="s1"></div>
-                <div class="slot" id="s2"></div>
-            </div>
-        </div>
-
-        <div class="ui-box">
-            <div style="margin-bottom:10px;">
-                <label>NIMEWO PA W YO</label>
-                <input type="text" id="my-nums" inputmode="numeric" placeholder="00 00 00" maxlength="8">
-            </div>
-            <div class="input-row">
-                <div>
-                    <label>MIZ (HTG)</label>
-                    <input type="number" id="miz-val" value="20">
-                </div>
-                <div>
-                    <label>PEYE</label>
-                    <input type="text" id="peye-val" value="0" readonly style="color:#ffcc00">
-                </div>
-            </div>
-            <button id="play-btn">KÒMANSE TIRAJ</button>
-        </div>
-    </div>
-
-    <div id="custom-modal">
-        <div class="modal-body" id="modal-msg"></div>
-    </div>
-
+<div id="app">
+<div class="drum-image-container">
+<img src="image_0.png" alt="Loto Drum" class="loto-image">
+<canvas id="lotoCanvas" width="200" height="200"></canvas>
+<div class="path-ball" id="curve-path-ball"></div>
+<div class="path-ball" id="collect-path-ball"></div>
+<div class="pvc-pipe">
+<div class="slot" id="s0"></div>
+<div class="slot" id="s1"></div>
+<div class="slot" id="s2"></div>
+</div>
+</div>
+<div class="ui-box">
+<div style="margin-bottom:10px;">
+<label>NIMEWO PA W YO (3)</label>
+<input type="text" id="my-nums" inputmode="numeric" placeholder="00 00 00" maxlength="8">
+</div>
+<div class="input-row">
+<div>
+<label>MIZ (HTG)</label>
+<input type="number" id="miz-val" value="20">
+</div>
+<div>
+<label>PEYE</label>
+<input type="text" id="peye-val" value="0" readonly style="color:#2E7D32">
+</div>
+</div>
+<button id="play-btn">KÒMANSE TIRAJ</button>
+</div>
+</div>
+<div id="custom-modal">
+<div class="modal-body" id="modal-msg"></div>
+</div>
 <script>
-    const canvas = document.getElementById('lotoCanvas');
-    const ctx = canvas.getContext('2d');
-    const playBtn = document.getElementById('play-btn');
-    const myNumsInput = document.getElementById('my-nums');
-    
-    let balls = [];
-    let speedMult = 1; // Pou kontwole bouyi a
-    const globe = { x: 150, y: 150, r: 142 };
-
-    // Formatage nimewo
-    myNumsInput.addEventListener('input', (e) => {
-        let v = e.target.value.replace(/\D/g, '');
-        let res = "";
-        for(let i=0; i<v.length && i<6; i++) {
-            if(i>0 && i%2===0) res += " ";
-            res += v[i];
-        }
-        e.target.value = res;
-    });
-
-    class Ball {
-        constructor(n) {
-            this.n = n < 10 ? '0'+n : ''+n;
-            this.radius = 11;
-            this.color = `hsl(${Math.random()*360}, 70%, 55%)`;
-            this.x = globe.x + (Math.random()-0.5)*150;
-            this.y = globe.y + (Math.random()-0.5)*150;
-            this.vx = (Math.random()-0.5)*10;
-            this.vy = (Math.random()-0.5)*10;
-            this.active = true;
-        }
-        draw() {
-            if(!this.active) return;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-            ctx.fillStyle = this.color;
-            ctx.fill();
-            ctx.fillStyle = "#fff";
-            ctx.font = "bold 10px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(this.n, this.x, this.y+4);
-        }
-        update() {
-            if(!this.active) return;
-            this.vx += (Math.random()-0.5) * (2 * speedMult);
-            this.vy += (Math.random()-0.5) * (2 * speedMult);
-            this.x += this.vx; this.y += this.vy;
-            this.vx *= 0.98; this.vy *= 0.98;
-
-            let d = Math.hypot(this.x-globe.x, this.y-globe.y);
-            if(d + this.radius > globe.r) {
-                let a = Math.atan2(this.y-globe.y, this.x-globe.x);
-                this.x = globe.x + Math.cos(a)*(globe.r-this.radius);
-                this.y = globe.y + Math.sin(a)*(globe.r-this.radius);
-                this.vx *= -0.7; this.vy *= -0.7;
-            }
-        }
-    }
-
-    function init() {
-        balls = Array.from({length: 100}, (_, i) => new Ball(i));
-    }
-
-    playBtn.onclick = () => {
-        if(myNumsInput.value.length < 8) return;
-        document.getElementById('peye-val').value = document.getElementById('miz-val').value;
-        startDraw();
-    };
-
-    function startDraw() {
-        playBtn.disabled = true;
-        speedMult = 8; // Akselere bouyi a
-        let results = [];
-        
-        // Reset slots
-        for(let i=0; i<3; i++) {
-            const s = document.getElementById(`s${i}`);
-            s.innerText = ""; s.style.background = "rgba(0,0,0,0.6)";
-        }
-
-        // Soti boul yo 1 pa 1
-        setTimeout(() => releaseBall(0, results), 3000);
-        setTimeout(() => releaseBall(1, results), 6000);
-        setTimeout(() => releaseBall(2, results), 9000);
-    }
-
-    function releaseBall(idx, resArr) {
-        let pool = balls.filter(b => b.active);
-        let b = pool[Math.floor(Math.random()*pool.length)];
-        b.active = false;
-        resArr.push(b.n);
-
-        // Kreye boul animasyon an
-        const r = canvas.getBoundingClientRect();
-        const f = document.createElement('div');
-        f.className = 'rolling-ball';
-        f.style.background = b.color;
-        f.innerText = b.n;
-        // Soti nan twou anba tanbou a
-        f.style.left = (r.left + r.width/2 - 19) + "px";
-        f.style.top = (r.top + r.height - 30) + "px";
-        document.body.appendChild(f);
-
-        const target = document.getElementById(`s${idx}`).getBoundingClientRect();
-
-        setTimeout(() => {
-            f.style.left = (target.left + target.width/2 - 19) + "px";
-            f.style.top = (target.top + target.height/2 - 19) + "px";
-        }, 100);
-
-        setTimeout(() => {
-            f.remove();
-            const slot = document.getElementById(`s${idx}`);
-            slot.innerText = b.n;
-            slot.style.background = b.color;
-            if(resArr.length === 3) finish(resArr);
-        }, 1100);
-    }
-
-    function finish(res) {
-        speedMult = 1; // Ralanti bouyi a
-        const miz = parseFloat(document.getElementById('peye-val').value);
-        const mine = myNumsInput.value.split(" ");
-        let win = 0;
-        if(mine.includes(res[0])) win += miz*100;
-        if(mine.includes(res[1])) win += miz*50;
-        if(mine.includes(res[2])) win += miz*25;
-
-        setTimeout(() => {
-            const mod = document.getElementById('custom-modal');
-            const body = document.getElementById('modal-msg');
-            body.innerHTML = `
-                <h2 style="color:#777">REZILTA TIRAJ</h2>
-                <h1 style="font-size:45px; letter-spacing:5px; margin:15px 0">${res.join("-")}</h1>
-                <h2 style="color:#0f0">${win > 0 ? "BRAVO! OU GENYEN "+win+" HTG" : "OU PA GENYEN"}</h2>
-                <button onclick="document.getElementById('custom-modal').style.display='none'" style="width:120px; box-shadow:none;">OK</button>
-            `;
-            mod.style.display = "flex";
-            playBtn.disabled = false;
-        }, 800);
-    }
-
-    function loop() {
-        ctx.clearRect(0,0,300,300);
-        // "Twou" sòti a
-        ctx.beginPath();
-        ctx.arc(150, 285, 20, 0, Math.PI, true);
-        ctx.strokeStyle = "#333"; ctx.lineWidth = 5; ctx.stroke();
-        
-        balls.forEach(b => { b.update(); b.draw(); });
-        requestAnimationFrame(loop);
-    }
-
-    init();
-    loop();
+const canvas = document.getElementById('lotoCanvas');
+const ctx = canvas.getContext('2d');
+const playBtn = document.getElementById('play-btn');
+const myNumsInput = document.getElementById('my-nums');
+// Eleman animasyon sòti
+const curveBall = document.getElementById('curve-path-ball');
+const collectBall = document.getElementById('collect-path-ball');
+let balls = [];
+let speedMult = 1; // Pou kontwole bouyi anndan an
+const internalGlobe = { x: 100, y: 100, r: 90 }; // Dimansyon pati transparan anndan an
+// Formatage nimewo
+myNumsInput.addEventListener('input', (e) => {
+let v = e.target.value.replace(/\D/g, '');
+let res = "";
+for(let i=0; i<v.length && i<6; i++) {
+if(i>0 && i%2===0) res += " ";
+res += v[i];
+}
+e.target.value = res;
+});
+class Ball {
+constructor(n) {
+this.n = n < 10 ? '0'+n : ''+n;
+this.radius = 10;
+// Koulè selon imaj yo
+const lotoColors = ['#4CAF50', '#FFEB3B', '#FF5722', '#9C27B0', '#2196F3', '#E91E63'];
+this.color = lotoColors[Math.floor(Math.random() * lotoColors.length)];
+this.x = internalGlobe.x + (Math.random()-0.5)*120;
+this.y = internalGlobe.y + (Math.random()-0.5)*120;
+this.vx = (Math.random()-0.5)*10;
+this.vy = (Math.random()-0.5)*10;
+this.active = true; // Boul la anndan glòb la
+}
+draw() {
+if(!this.active) return;
+ctx.beginPath();
+ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+ctx.fillStyle = this.color;
+ctx.fill();
+// Text nimewo a
+ctx.fillStyle = "#fff";
+ctx.font = "bold 9px Arial";
+ctx.textAlign = "center";
+ctx.fillText(this.n, this.x, this.y+3);
+// Brillance
+ctx.beginPath();
+ctx.arc(this.x - this.radius*0.3, this.y - this.radius*0.3, this.radius*0.4, 0, Math.PI*2);
+ctx.fillStyle = "rgba(255,255,255,0.3)";
+ctx.fill();
+}
+update() {
+if(!this.active) return;
+this.vx += (Math.random()-0.5) * (2 * speedMult);
+this.vy += (Math.random()-0.5) * (2 * speedMult);
+this.x += this.vx; this.y += this.vy;
+this.vx *= 0.98; this.vy *= 0.98;
+let d = Math.hypot(this.x-internalGlobe.x, this.y-internalGlobe.y);
+if(d + this.radius > internalGlobe.r) {
+let a = Math.atan2(this.y-internalGlobe.y, this.x-internalGlobe.x);
+this.x = internalGlobe.x + Math.cos(a)*(internalGlobe.r-this.radius);
+this.y = internalGlobe.y + Math.sin(a)*(internalGlobe.r-this.radius);
+this.vx *= -0.8; this.vy *= -0.8;
+}
+}
+}
+function init() {
+balls = Array.from({length: 49}, (_, i) => new Ball(i+1)); // 1 pou 49 boul
+}
+playBtn.onclick = () => {
+if(myNumsInput.value.length < 8) return;
+document.getElementById('peye-val').value = document.getElementById('miz-val').value;
+startDraw();
+};
+function startDraw() {
+playBtn.disabled = true;
+speedMult = 10; // Akselere bouyi a anndan glòb la
+let results = [];
+// Reset bwat slots yo
+for(let i=0; i<3; i++) {
+const s = document.getElementById(s${i});
+s.innerText = ""; s.style.background = "rgba(0,0,0,0.1)";
+s.style.border = "1px dashed #777";
+}
+// Sekans sòti boul yo (1 pa 1)
+// Nou itilize delè pou simulation sòti a.
+// 1. Boul sòti an wo nan twou curve la.
+// 2. Woule sou track la pou l al kole an ba.
+// 3. Poze nan slot koleksyon an.
+// Premye boul
+setTimeout(() => releaseBallSequence(0, results), 2500);
+// Dezyèm boul
+setTimeout(() => releaseBallSequence(1, results), 7000);
+// Twazyèm boul
+setTimeout(() => releaseBallSequence(2, results), 11500);
+}
+function releaseBallSequence(idx, resArr) {
+let pool = balls.filter(b => b.active);
+if(pool.length === 0) return; // Sekirite
+let b = pool[Math.floor(Math.random()*pool.length)];
+b.active = false; // Boul la pa anndan glòb la ankò
+resArr.push(b.n);
+// --- Etap 1: Boul la sòti nan twou an wo (twou curve la) ---
+// Aliyen eleman curveBall la ak boul sòti a
+curveBall.style.background = b.color;
+curveBall.innerText = b.n;
+curveBall.style.opacity = '1';
+curveBall.style.transition = 'none'; // Reset tranzisyon
+curveBall.style.top = '20px'; // Kòmansman chimen curve la (wo)
+curveBall.style.left = '215px';
+// --- Etap 2: Woule sou chimen curve la pou desann ---
+setTimeout(() => {
+curveBall.style.transition = 'all 1s cubic-bezier(0.4, 0, 0.2, 1)'; // Re-aktive tranzisyon
+// Finisyon chimen curve an wo
+curveBall.style.top = '170px'; // Aliyen ak fen curve an wo a
+curveBall.style.left = '215px';
+}, 100);
+// --- Etap 3: Boul curve la disparèt nan fen track wo a, epi collectBall parèt nan kòmansman track horizontal la ---
+setTimeout(() => {
+curveBall.style.opacity = '0'; // Disparèt
+collectBall.style.background = b.color;
+collectBall.innerText = b.n;
+collectBall.style.opacity = '1';
+collectBall.style.transition = 'none';
+// Kòmansman track horizontal la (an ba track wo a)
+collectBall.style.bottom = '60px';
+collectBall.style.left = '170px';
+}, 1100);
+// --- Etap 4: Boul collect la woule sou track horizontal la pou l al jwenn slot li a ---
+setTimeout(() => {
+collectBall.style.transition = 'all 1s cubic-bezier(0.4, 0, 0.2, 1)';
+// Woule nan track horizontal la pou l al kole nan slot pa l la
+// Nou kalkile pozisyon slot la relative ak container image la
+const slotTarget = document.getElementById(s${idx}).getBoundingClientRect();
+const containerRect = document.querySelector('.drum-image-container').getBoundingClientRect();
+collectBall.style.bottom = '38px'; // Aliyen ak nivo slots yo (bese yon ti kras)
+collectBall.style.left = (slotTarget.left - containerRect.left) + "px"; // Kole nan slot li a
+}, 1200);
+// --- Etap 5: Boul collect la disparèt, epi slot la pran koulè ak nimewo a ---
+setTimeout(() => {
+collectBall.style.opacity = '0';
+const slot = document.getElementById(s${idx});
+slot.innerText = b.n;
+slot.style.background = b.color;
+slot.style.border = "none";
+// Si se dènye boul, fini tiraj la
+if(resArr.length === 3) finish(resArr);
+}, 2200);
+}
+function finish(res) {
+speedMult = 1; // Ralanti bouyi a anndan glòb la
+const miz = parseFloat(document.getElementById('peye-val').value);
+const mine = myNumsInput.value.split(" ");
+let win = 0;
+// Lojik genyen senp: si ou jwenn yon nimewo, genyen
+if(mine.includes(res[0])) win += miz*100;
+if(mine.includes(res[1])) win += miz*50;
+if(mine.includes(res[2])) win += miz*25;
+setTimeout(() => {
+const mod = document.getElementById('custom-modal');
+const body = document.getElementById('modal-msg');
+body.innerHTML = <h2 style="color:#777">REZILTA TIRAJ</h2> <h1 style="font-size:45px; letter-spacing:5px; margin:15px 0">${res.join("-")}</h1> <h2 style="color:#2E7D32">${win > 0 ? "BRAVO! OU GENYEN "+win+" HTG" : "OU PA GENYEN"}</h2> <button onclick="document.getElementById('custom-modal').style.display='none'" style="width:120px; box-shadow:none;">OK</button>;
+mod.style.display = "flex";
+playBtn.disabled = false;
+}, 1000);
+}
+function loop() {
+ctx.clearRect(0,0,200,200); // Netwaye canvas transparan an
+balls.forEach(b => { b.update(); b.draw(); });
+requestAnimationFrame(loop);
+}
+init();
+loop();
 </script>
 </body>
 </html>
