@@ -3,114 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Loto Pro - Real Tiraj</title>
+    <title>Loto Pro - Real Animasyon</title>
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: #000; color: #fff; font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        #app { width: 100%; max-width: 350px; padding: 15px; background: #111; border-radius: 20px; text-align: center; border: 1px solid #333; position: relative; }
-        
-        /* Tanbou */
-        canvas { background: radial-gradient(circle, #222, #000); border-radius: 50%; border: 4px solid #444; width: 220px; height: 220px; }
+        #app { width: 100%; max-width: 360px; padding: 10px; text-align: center; }
+
+        /* Tanbou Look Pro */
+        .drum-container { position: relative; width: 240px; height: 240px; margin: 0 auto; }
+        canvas { 
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%); 
+            border-radius: 50%; border: 6px solid #333; 
+            width: 100%; height: 100%; box-shadow: 0 0 30px rgba(255,0,0,0.2);
+            z-index: 2; position: relative;
+        }
 
         /* Ti Chimen PVC a */
-        .pvc-container {
-            width: 200px; height: 50px;
-            background: rgba(255,255,255,0.1);
-            margin: 10px auto;
-            border-radius: 25px;
-            border: 2px solid rgba(255,255,255,0.2);
-            display: flex; align-items: center; justify-content: center;
-            gap: 10px; position: relative; backdrop-filter: blur(5px);
+        .pvc-pipe {
+            position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%);
+            width: 180px; height: 50px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0 0 25px 25px;
+            z-index: 1; display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(8px); padding: 5px; gap: 8px;
         }
 
         .slot {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: rgba(0,0,0,0.4); border: 1px dashed #555;
+            width: 42px; height: 42px; border-radius: 50%;
+            background: rgba(0,0,0,0.6); border: 1px solid #444;
             display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 18px; color: #fff;
+            font-weight: bold; font-size: 18px; transition: all 0.5s;
         }
 
-        /* Boul k ap vole/woule a */
-        .flying-ball {
-            position: fixed; width: 35px; height: 35px; border-radius: 50%;
+        /* Boul k ap woule a */
+        .rolling-ball {
+            position: fixed; width: 38px; height: 38px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-weight: bold; color: #fff; z-index: 100;
-            transition: all 1.2s cubic-bezier(0.25, 0.1, 0.25, 1);
-            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.5);
+            font-weight: bold; color: #fff; font-size: 16px; z-index: 99;
+            box-shadow: inset -4px -4px 10px rgba(0,0,0,0.5), 2px 2px 5px rgba(0,0,0,0.5);
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Kontwòl */
-        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .field { display: flex; flex-direction: column; text-align: left; }
-        label { font-size: 10px; color: #888; margin-bottom: 4px; text-transform: uppercase; }
-        input { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 16px; text-align: center; width: 100%; }
+        /* UI */
+        .ui-box { margin-top: 60px; background: #111; padding: 15px; border-radius: 15px; border: 1px solid #222; }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        label { display: block; font-size: 10px; color: #777; text-align: left; margin-bottom: 3px; }
+        input { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; font-size: 18px; text-align: center; }
         
         button { 
-            width: 100%; background: #d00; color: #fff; border: none; padding: 15px; 
-            border-radius: 10px; font-weight: bold; font-size: 18px; margin-top: 15px; cursor: pointer;
+            width: 100%; background: linear-gradient(#f00, #900); color: #fff; border: none; 
+            padding: 16px; border-radius: 10px; font-weight: bold; font-size: 18px; cursor: pointer;
+            box-shadow: 0 4px 0 #500; text-transform: uppercase;
         }
-        button:disabled { background: #444; }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #500; }
 
-        /* Mesaj nan App la (o lye de Alert) */
-        #status-msg { font-size: 12px; color: #ffcc00; margin-top: 10px; height: 15px; }
-
-        /* Rezilta Final Modal */
-        #modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 200;
+        /* Custom Modal pou l pa bloke App la */
+        #custom-modal {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000;
         }
-        .modal-card { background: #222; padding: 30px; border-radius: 20px; border: 2px solid #d00; text-align: center; width: 80%; }
+        .modal-body { background: #1a1a1a; padding: 30px; border-radius: 20px; border: 2px solid #f00; text-align: center; width: 85%; }
     </style>
 </head>
 <body>
 
     <div id="app">
-        <canvas id="lotoCanvas" width="300" height="300"></canvas>
-        
-        <div id="status-msg"></div>
-
-        <div class="pvc-container">
-            <div class="slot" id="s0"></div>
-            <div class="slot" id="s1"></div>
-            <div class="slot" id="s2"></div>
-        </div>
-
-        <div class="field">
-            <label>Nimewo ou yo (3)</label>
-            <input type="text" id="my-nums" inputmode="numeric" placeholder="00 00 00" maxlength="8">
-        </div>
-
-        <div class="input-group">
-            <div class="field">
-                <label>Miz (HTG)</label>
-                <input type="number" id="miz" value="20">
-            </div>
-            <div class="field">
-                <label>Peye</label>
-                <input type="text" id="peye" value="0" readonly>
+        <div class="drum-container">
+            <canvas id="lotoCanvas" width="300" height="300"></canvas>
+            <div class="pvc-pipe">
+                <div class="slot" id="s0"></div>
+                <div class="slot" id="s1"></div>
+                <div class="slot" id="s2"></div>
             </div>
         </div>
 
-        <button id="start-btn">KÒMANSE TIRAJ</button>
+        <div class="ui-box">
+            <div style="margin-bottom:10px;">
+                <label>NIMEWO PA W YO</label>
+                <input type="text" id="my-nums" inputmode="numeric" placeholder="00 00 00" maxlength="8">
+            </div>
+            <div class="input-row">
+                <div>
+                    <label>MIZ (HTG)</label>
+                    <input type="number" id="miz-val" value="20">
+                </div>
+                <div>
+                    <label>PEYE</label>
+                    <input type="text" id="peye-val" value="0" readonly style="color:#ffcc00">
+                </div>
+            </div>
+            <button id="play-btn">KÒMANSE TIRAJ</button>
+        </div>
     </div>
 
-    <div id="modal">
-        <div class="modal-card" id="modal-content"></div>
+    <div id="custom-modal">
+        <div class="modal-body" id="modal-msg"></div>
     </div>
 
 <script>
     const canvas = document.getElementById('lotoCanvas');
     const ctx = canvas.getContext('2d');
+    const playBtn = document.getElementById('play-btn');
     const myNumsInput = document.getElementById('my-nums');
-    const btn = document.getElementById('start-btn');
-    const statusMsg = document.getElementById('status-msg');
-
+    
     let balls = [];
-    let isTirageActive = false;
-    const globe = { x: 150, y: 150, radius: 140 };
+    let speedMult = 1; // Pou kontwole bouyi a
+    const globe = { x: 150, y: 150, r: 142 };
 
-    // Smart Input (Espas otomatik)
+    // Formatage nimewo
     myNumsInput.addEventListener('input', (e) => {
         let v = e.target.value.replace(/\D/g, '');
         let res = "";
@@ -123,143 +125,132 @@
 
     class Ball {
         constructor(n) {
-            this.num = n < 10 ? '0'+n : ''+n;
-            this.r = 12;
-            this.color = `hsl(${Math.random()*360}, 75%, 60%)`;
-            this.reset();
-        }
-        reset() {
+            this.n = n < 10 ? '0'+n : ''+n;
+            this.radius = 11;
+            this.color = `hsl(${Math.random()*360}, 70%, 55%)`;
             this.x = globe.x + (Math.random()-0.5)*150;
             this.y = globe.y + (Math.random()-0.5)*150;
-            this.vx = (Math.random()-0.5)*12;
-            this.vy = (Math.random()-0.5)*12;
-            this.visible = true;
+            this.vx = (Math.random()-0.5)*10;
+            this.vy = (Math.random()-0.5)*10;
+            this.active = true;
         }
         draw() {
-            if(!this.visible) return;
+            if(!this.active) return;
             ctx.beginPath();
-            ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
             ctx.fillStyle = this.color;
             ctx.fill();
             ctx.fillStyle = "#fff";
-            ctx.font = "bold 9px Arial";
+            ctx.font = "bold 10px Arial";
             ctx.textAlign = "center";
-            ctx.fillText(this.num, this.x, this.y+4);
+            ctx.fillText(this.n, this.x, this.y+4);
         }
         update() {
-            if(!this.visible) return;
-            // Toujou ap bouyi (isTirageActive ogmante vitès la)
-            let speed = isTirageActive ? 15 : 2;
-            this.vx += (Math.random()-0.5) * speed;
-            this.vy += (Math.random()-0.5) * speed;
-
+            if(!this.active) return;
+            this.vx += (Math.random()-0.5) * (2 * speedMult);
+            this.vy += (Math.random()-0.5) * (2 * speedMult);
             this.x += this.vx; this.y += this.vy;
             this.vx *= 0.98; this.vy *= 0.98;
 
-            let dist = Math.hypot(this.x-globe.x, this.y-globe.y);
-            if(dist + this.r > globe.radius) {
-                let ang = Math.atan2(this.y-globe.y, this.x-globe.x);
-                this.x = globe.x + Math.cos(ang)*(globe.radius-this.r);
-                this.y = globe.y + Math.sin(ang)*(globe.radius-this.r);
-                this.vx *= -0.8; this.vy *= -0.8;
+            let d = Math.hypot(this.x-globe.x, this.y-globe.y);
+            if(d + this.radius > globe.r) {
+                let a = Math.atan2(this.y-globe.y, this.x-globe.x);
+                this.x = globe.x + Math.cos(a)*(globe.r-this.radius);
+                this.y = globe.y + Math.sin(a)*(globe.r-this.radius);
+                this.vx *= -0.7; this.vy *= -0.7;
             }
         }
     }
 
     function init() {
-        balls = [];
-        for(let i=0; i<100; i++) balls.push(new Ball(i));
+        balls = Array.from({length: 100}, (_, i) => new Ball(i));
     }
 
-    btn.onclick = () => {
-        if(myNumsInput.value.length < 8) {
-            statusMsg.innerText = "Chwazi 3 boul tanpri!";
-            return;
-        }
-        // Simulation Peye san bwat Alert
-        document.getElementById('peye').value = document.getElementById('miz').value;
-        statusMsg.innerText = "Tiraj ap fèt...";
-        startTiraj();
+    playBtn.onclick = () => {
+        if(myNumsInput.value.length < 8) return;
+        document.getElementById('peye-val').value = document.getElementById('miz-val').value;
+        startDraw();
     };
 
-    function startTiraj() {
-        btn.disabled = true;
-        isTirageActive = true;
-        let resNumbers = [];
+    function startDraw() {
+        playBtn.disabled = true;
+        speedMult = 8; // Akselere bouyi a
+        let results = [];
         
-        // Netwaye ti bwat yo
-        for(let i=0; i<3; i++) document.getElementById(`s${i}`).innerText = "";
+        // Reset slots
+        for(let i=0; i<3; i++) {
+            const s = document.getElementById(`s${i}`);
+            s.innerText = ""; s.style.background = "rgba(0,0,0,0.6)";
+        }
 
-        // Pwosesis soti boul yo (yo youn pa youn pandan l ap bouyi)
-        setTimeout(() => sotiBoul(0, resNumbers), 4000);
-        setTimeout(() => sotiBoul(1, resNumbers), 7000);
-        setTimeout(() => sotiBoul(2, resNumbers), 10000);
+        // Soti boul yo 1 pa 1
+        setTimeout(() => releaseBall(0, results), 3000);
+        setTimeout(() => releaseBall(1, results), 6000);
+        setTimeout(() => releaseBall(2, results), 9000);
     }
 
-    function sotiBoul(idx, list) {
-        let av = balls.filter(b => b.visible);
-        let b = av[Math.floor(Math.random()*av.length)];
-        b.visible = false; 
-        list.push(b.num);
+    function releaseBall(idx, resArr) {
+        let pool = balls.filter(b => b.active);
+        let b = pool[Math.floor(Math.random()*pool.length)];
+        b.active = false;
+        resArr.push(b.n);
 
-        const rect = canvas.getBoundingClientRect();
+        // Kreye boul animasyon an
+        const r = canvas.getBoundingClientRect();
         const f = document.createElement('div');
-        f.className = 'flying-ball';
+        f.className = 'rolling-ball';
         f.style.background = b.color;
-        f.innerText = b.num;
-        // Soti nan "ti tou" anba a (nan mitan)
-        f.style.left = (rect.left + rect.width/2 - 17) + "px";
-        f.style.top = (rect.top + rect.height - 30) + "px";
+        f.innerText = b.n;
+        // Soti nan twou anba tanbou a
+        f.style.left = (r.left + r.width/2 - 19) + "px";
+        f.style.top = (r.top + r.height - 30) + "px";
         document.body.appendChild(f);
 
         const target = document.getElementById(`s${idx}`).getBoundingClientRect();
 
-        // Animasyon woule nan PVC a
         setTimeout(() => {
-            f.style.left = (target.left + target.width/2 - 17) + "px";
-            f.style.top = (target.top + target.height/2 - 17) + "px";
+            f.style.left = (target.left + target.width/2 - 19) + "px";
+            f.style.top = (target.top + target.height/2 - 19) + "px";
         }, 100);
 
         setTimeout(() => {
             f.remove();
-            document.getElementById(`s${idx}`).innerText = b.num;
-            document.getElementById(`s${idx}`).style.background = b.color;
-            if(list.length === 3) montreFinal(list);
-        }, 1300);
+            const slot = document.getElementById(`s${idx}`);
+            slot.innerText = b.n;
+            slot.style.background = b.color;
+            if(resArr.length === 3) finish(resArr);
+        }, 1100);
     }
 
-    function montreFinal(drawn) {
-        isTirageActive = false; // Li kontinye bouyi dousman apre sa
-        const miz = parseFloat(document.getElementById('peye').value);
+    function finish(res) {
+        speedMult = 1; // Ralanti bouyi a
+        const miz = parseFloat(document.getElementById('peye-val').value);
         const mine = myNumsInput.value.split(" ");
-        let genyen = 0;
-        if(mine.includes(drawn[0])) genyen += miz*100;
-        if(mine.includes(drawn[1])) genyen += miz*50;
-        if(mine.includes(drawn[2])) genyen += miz*25;
+        let win = 0;
+        if(mine.includes(res[0])) win += miz*100;
+        if(mine.includes(res[1])) win += miz*50;
+        if(mine.includes(res[2])) win += miz*25;
 
         setTimeout(() => {
-            const m = document.getElementById('modal');
-            const c = document.getElementById('modal-content');
-            m.style.display = "flex";
-            c.innerHTML = `
-                <h2 style="color:#aaa">TIRAJ FINI</h2>
-                <h1 style="font-size:40px; margin:10px 0">${drawn.join(" - ")}</h1>
-                <h2 style="color:#0f0">${genyen > 0 ? "GENYEN: "+genyen+" HTG" : "OU PA GENYEN"}</h2>
-                <button onclick="hideModal()" style="width:100px; padding:10px">OK</button>
+            const mod = document.getElementById('custom-modal');
+            const body = document.getElementById('modal-msg');
+            body.innerHTML = `
+                <h2 style="color:#777">REZILTA TIRAJ</h2>
+                <h1 style="font-size:45px; letter-spacing:5px; margin:15px 0">${res.join("-")}</h1>
+                <h2 style="color:#0f0">${win > 0 ? "BRAVO! OU GENYEN "+win+" HTG" : "OU PA GENYEN"}</h2>
+                <button onclick="document.getElementById('custom-modal').style.display='none'" style="width:120px; box-shadow:none;">OK</button>
             `;
-            btn.disabled = false;
-            statusMsg.innerText = "";
-        }, 1000);
+            mod.style.display = "flex";
+            playBtn.disabled = false;
+        }, 800);
     }
-
-    window.hideModal = () => { document.getElementById('modal').style.display = "none"; };
 
     function loop() {
         ctx.clearRect(0,0,300,300);
-        // Desine ti "tous" sòti a nan kanva a
+        // "Twou" sòti a
         ctx.beginPath();
-        ctx.arc(150, 280, 25, 0, Math.PI, true);
-        ctx.strokeStyle = "#444"; ctx.lineWidth = 4; ctx.stroke();
+        ctx.arc(150, 285, 20, 0, Math.PI, true);
+        ctx.strokeStyle = "#333"; ctx.lineWidth = 5; ctx.stroke();
         
         balls.forEach(b => { b.update(); b.draw(); });
         requestAnimationFrame(loop);
