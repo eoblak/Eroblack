@@ -3,126 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Loto Pro - PVC Transparan</title>
+    <title>Loto Pro - Real Tiraj</title>
     <style>
         * { box-sizing: border-box; }
-        body { margin: 0; background: #050505; color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        body { margin: 0; background: #000; color: #fff; font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        #app { width: 100%; max-width: 360px; padding: 15px; background: #111; border-radius: 20px; text-align: center; border: 1px solid #333; }
+        #app { width: 100%; max-width: 350px; padding: 15px; background: #111; border-radius: 20px; text-align: center; border: 1px solid #333; position: relative; }
         
         /* Tanbou */
-        .tambour-zone { position: relative; margin-bottom: 40px; }
-        canvas { background: radial-gradient(circle, #222, #000); border-radius: 50%; border: 5px solid #222; width: 220px; height: 220px; box-shadow: 0 0 20px rgba(255,0,0,0.1); }
+        canvas { background: radial-gradient(circle, #222, #000); border-radius: 50%; border: 4px solid #444; width: 220px; height: 220px; }
 
-        /* Ti Chimen PVC Transparan */
-        .pvc-pipe {
-            position: absolute;
-            bottom: -35px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-top: none;
-            border-radius: 0 0 20px 20px;
-            z-index: 0;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            backdrop-filter: blur(5px);
-        }
-
-        .prize-slots { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
-        .slot { 
-            width: 45px; height: 45px; 
-            border-radius: 50%; 
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(0,0,0,0.5);
-            display: flex; align-items: center; justify-content: center; 
-            font-weight: bold; font-size: 18px; position: relative;
-        }
-        .slot-label { position: absolute; bottom: -20px; font-size: 9px; color: #ffcc00; width: 100%; text-transform: uppercase; }
-
-        /* Boul k ap glise a */
-        .ball-exit {
-            position: fixed;
-            width: 32px; height: 32px;
-            border-radius: 50%;
+        /* Ti Chimen PVC a */
+        .pvc-container {
+            width: 200px; height: 50px;
+            background: rgba(255,255,255,0.1);
+            margin: 10px auto;
+            border-radius: 25px;
+            border: 2px solid rgba(255,255,255,0.2);
             display: flex; align-items: center; justify-content: center;
-            font-weight: bold; color: #fff; font-size: 14px;
-            z-index: 99;
-            transition: all 0.9s cubic-bezier(0.5, 0, 0.5, 1);
-            box-shadow: inset -3px -3px 8px rgba(0,0,0,0.4), 0 5px 10px rgba(0,0,0,0.5);
+            gap: 10px; position: relative; backdrop-filter: blur(5px);
         }
 
-        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
-        .field { display: flex; flex-direction: column; align-items: flex-start; }
-        label { font-size: 10px; color: #666; margin-bottom: 4px; font-weight: bold; }
-        input { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; font-size: 16px; text-align: center; }
+        .slot {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(0,0,0,0.4); border: 1px dashed #555;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 18px; color: #fff;
+        }
+
+        /* Boul k ap vole/woule a */
+        .flying-ball {
+            position: fixed; width: 35px; height: 35px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: #fff; z-index: 100;
+            transition: all 1.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* Kontwòl */
+        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .field { display: flex; flex-direction: column; text-align: left; }
+        label { font-size: 10px; color: #888; margin-bottom: 4px; text-transform: uppercase; }
+        input { background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 16px; text-align: center; width: 100%; }
         
         button { 
-            grid-column: span 2; width: 100%; 
-            background: linear-gradient(#e60000, #a30000); 
-            color: #fff; border: none; padding: 16px; border-radius: 12px; 
-            font-weight: bold; font-size: 18px; margin-top: 15px; cursor: pointer;
-            box-shadow: 0 5px 0 #600;
+            width: 100%; background: #d00; color: #fff; border: none; padding: 15px; 
+            border-radius: 10px; font-weight: bold; font-size: 18px; margin-top: 15px; cursor: pointer;
         }
-        button:active { transform: translateY(3px); box-shadow: 0 2px 0 #600; }
+        button:disabled { background: #444; }
 
-        #result-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-box { background: #1a1a1a; padding: 30px; border-radius: 25px; border: 2px solid #e60000; width: 85%; text-align: center; }
+        /* Mesaj nan App la (o lye de Alert) */
+        #status-msg { font-size: 12px; color: #ffcc00; margin-top: 10px; height: 15px; }
+
+        /* Rezilta Final Modal */
+        #modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 200;
+        }
+        .modal-card { background: #222; padding: 30px; border-radius: 20px; border: 2px solid #d00; text-align: center; width: 80%; }
     </style>
 </head>
 <body>
 
     <div id="app">
-        <div class="tambour-zone">
-            <canvas id="lotoCanvas" width="300" height="300"></canvas>
-            <div class="pvc-pipe">
-                <div class="slot" id="slot-0"><span class="slot-label">1ye</span></div>
-                <div class="slot" id="slot-1"><span class="slot-label">2yèm</span></div>
-                <div class="slot" id="slot-2"><span class="slot-label">3yèm</span></div>
-            </div>
+        <canvas id="lotoCanvas" width="300" height="300"></canvas>
+        
+        <div id="status-msg"></div>
+
+        <div class="pvc-container">
+            <div class="slot" id="s0"></div>
+            <div class="slot" id="s1"></div>
+            <div class="slot" id="s2"></div>
         </div>
 
-        <div class="field" style="margin-top: 20px;">
-            <label>CHWAZI 3 BOUL YO</label>
-            <input type="text" id="my-numbers" inputmode="numeric" placeholder="00 00 00" maxlength="8">
+        <div class="field">
+            <label>Nimewo ou yo (3)</label>
+            <input type="text" id="my-nums" inputmode="numeric" placeholder="00 00 00" maxlength="8">
         </div>
 
-        <div class="controls">
+        <div class="input-group">
             <div class="field">
-                <label>MIZ (HTG)</label>
-                <input type="number" id="bet-input" value="20">
+                <label>Miz (HTG)</label>
+                <input type="number" id="miz" value="20">
             </div>
             <div class="field">
-                <label>STATI PEYE</label>
-                <input type="text" id="txt-peye" value="0" readonly style="color: #ffcc00;">
+                <label>Peye</label>
+                <input type="text" id="peye" value="0" readonly>
             </div>
         </div>
 
-        <button id="btn-start">PEYE & TIRER</button>
+        <button id="start-btn">KÒMANSE TIRAJ</button>
     </div>
 
-    <div id="result-modal">
-        <div class="modal-box" id="modal-content"></div>
+    <div id="modal">
+        <div class="modal-card" id="modal-content"></div>
     </div>
 
 <script>
     const canvas = document.getElementById('lotoCanvas');
     const ctx = canvas.getContext('2d');
-    const btnStart = document.getElementById('btn-start');
-    const myNumbersInput = document.getElementById('my-numbers');
-    const betInput = document.getElementById('bet-input');
-    const txtPeye = document.getElementById('txt-peye');
+    const myNumsInput = document.getElementById('my-nums');
+    const btn = document.getElementById('start-btn');
+    const statusMsg = document.getElementById('status-msg');
 
     let balls = [];
-    let isShaking = false;
+    let isTirageActive = false;
     const globe = { x: 150, y: 150, radius: 140 };
 
-    // Formatage chif yo
-    myNumbersInput.addEventListener('input', (e) => {
+    // Smart Input (Espas otomatik)
+    myNumsInput.addEventListener('input', (e) => {
         let v = e.target.value.replace(/\D/g, '');
         let res = "";
         for(let i=0; i<v.length && i<6; i++) {
@@ -135,38 +124,43 @@
     class Ball {
         constructor(n) {
             this.num = n < 10 ? '0'+n : ''+n;
-            this.radius = 12;
+            this.r = 12;
             this.color = `hsl(${Math.random()*360}, 75%, 60%)`;
             this.reset();
         }
         reset() {
-            this.x = globe.x + (Math.random()-0.5)*180;
-            this.y = globe.y + (Math.random()-0.5)*180;
-            this.vx = (Math.random()-0.5)*15;
-            this.vy = (Math.random()-0.5)*15;
+            this.x = globe.x + (Math.random()-0.5)*150;
+            this.y = globe.y + (Math.random()-0.5)*150;
+            this.vx = (Math.random()-0.5)*12;
+            this.vy = (Math.random()-0.5)*12;
             this.visible = true;
         }
         draw() {
             if(!this.visible) return;
             ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+            ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
             ctx.fillStyle = this.color;
             ctx.fill();
-            ctx.fillStyle = "rgba(255,255,255,0.8)";
+            ctx.fillStyle = "#fff";
             ctx.font = "bold 9px Arial";
             ctx.textAlign = "center";
-            ctx.fillText(this.num, this.x, this.y+3);
+            ctx.fillText(this.num, this.x, this.y+4);
         }
         update() {
             if(!this.visible) return;
-            if(isShaking) { this.vx += (Math.random()-0.5)*10; this.vy += (Math.random()-0.5)*10; }
+            // Toujou ap bouyi (isTirageActive ogmante vitès la)
+            let speed = isTirageActive ? 15 : 2;
+            this.vx += (Math.random()-0.5) * speed;
+            this.vy += (Math.random()-0.5) * speed;
+
             this.x += this.vx; this.y += this.vy;
-            this.vx *= 0.97; this.vy *= 0.97;
+            this.vx *= 0.98; this.vy *= 0.98;
+
             let dist = Math.hypot(this.x-globe.x, this.y-globe.y);
-            if(dist + this.radius > globe.radius) {
+            if(dist + this.r > globe.radius) {
                 let ang = Math.atan2(this.y-globe.y, this.x-globe.x);
-                this.x = globe.x + Math.cos(ang)*(globe.radius-this.radius);
-                this.y = globe.y + Math.sin(ang)*(globe.radius-this.radius);
+                this.x = globe.x + Math.cos(ang)*(globe.radius-this.r);
+                this.y = globe.y + Math.sin(ang)*(globe.radius-this.r);
                 this.vx *= -0.8; this.vy *= -0.8;
             }
         }
@@ -177,88 +171,96 @@
         for(let i=0; i<100; i++) balls.push(new Ball(i));
     }
 
-    btnStart.onclick = () => {
-        if(myNumbersInput.value.length < 8) { alert("Mete 3 boul yo tanpri!"); return; }
-        if(confirm(`Èske w konfime peman ${betInput.value} HTG la?`)) {
-            txtPeye.value = betInput.value;
-            tiraj();
+    btn.onclick = () => {
+        if(myNumsInput.value.length < 8) {
+            statusMsg.innerText = "Chwazi 3 boul tanpri!";
+            return;
         }
+        // Simulation Peye san bwat Alert
+        document.getElementById('peye').value = document.getElementById('miz').value;
+        statusMsg.innerText = "Tiraj ap fèt...";
+        startTiraj();
     };
 
-    function tiraj() {
-        btnStart.disabled = true;
-        let drawn = [];
-        isShaking = true;
+    function startTiraj() {
+        btn.disabled = true;
+        isTirageActive = true;
+        let resNumbers = [];
+        
+        // Netwaye ti bwat yo
+        for(let i=0; i<3; i++) document.getElementById(`s${i}`).innerText = "";
 
-        document.querySelectorAll('.slot').forEach(s => {
-            const label = s.querySelector('.slot-label');
-            s.innerHTML = ""; s.appendChild(label); s.style.background = "rgba(0,0,0,0.5)";
-        });
-
-        setTimeout(() => {
-            isShaking = false;
-            // Soti boul yo youn pa youn
-            for(let i=0; i<3; i++) {
-                setTimeout(() => sotiBoul(i, drawn), i * 2000);
-            }
-        }, 5000);
+        // Pwosesis soti boul yo (yo youn pa youn pandan l ap bouyi)
+        setTimeout(() => sotiBoul(0, resNumbers), 4000);
+        setTimeout(() => sotiBoul(1, resNumbers), 7000);
+        setTimeout(() => sotiBoul(2, resNumbers), 10000);
     }
 
     function sotiBoul(idx, list) {
         let av = balls.filter(b => b.visible);
         let b = av[Math.floor(Math.random()*av.length)];
-        b.visible = false;
+        b.visible = false; 
         list.push(b.num);
 
         const rect = canvas.getBoundingClientRect();
         const f = document.createElement('div');
-        f.className = 'ball-exit';
+        f.className = 'flying-ball';
         f.style.background = b.color;
         f.innerText = b.num;
-        f.style.left = (rect.left + rect.width/2 - 16) + "px";
-        f.style.top = (rect.top + rect.height - 20) + "px"; // Kòmanse anba tanbou a
+        // Soti nan "ti tou" anba a (nan mitan)
+        f.style.left = (rect.left + rect.width/2 - 17) + "px";
+        f.style.top = (rect.top + rect.height - 30) + "px";
         document.body.appendChild(f);
 
-        const target = document.getElementById(`slot-${idx}`).getBoundingClientRect();
+        const target = document.getElementById(`s${idx}`).getBoundingClientRect();
 
+        // Animasyon woule nan PVC a
         setTimeout(() => {
-            f.style.left = (target.left + target.width/2 - 16) + "px";
-            f.style.top = (target.top + target.height/2 - 16) + "px";
+            f.style.left = (target.left + target.width/2 - 17) + "px";
+            f.style.top = (target.top + target.height/2 - 17) + "px";
         }, 100);
 
         setTimeout(() => {
             f.remove();
-            const slot = document.getElementById(`slot-${idx}`);
-            slot.style.background = b.color;
-            slot.innerHTML += b.num;
-            if(list.length === 3) montreRezilta(list);
+            document.getElementById(`s${idx}`).innerText = b.num;
+            document.getElementById(`s${idx}`).style.background = b.color;
+            if(list.length === 3) montreFinal(list);
+        }, 1300);
+    }
+
+    function montreFinal(drawn) {
+        isTirageActive = false; // Li kontinye bouyi dousman apre sa
+        const miz = parseFloat(document.getElementById('peye').value);
+        const mine = myNumsInput.value.split(" ");
+        let genyen = 0;
+        if(mine.includes(drawn[0])) genyen += miz*100;
+        if(mine.includes(drawn[1])) genyen += miz*50;
+        if(mine.includes(drawn[2])) genyen += miz*25;
+
+        setTimeout(() => {
+            const m = document.getElementById('modal');
+            const c = document.getElementById('modal-content');
+            m.style.display = "flex";
+            c.innerHTML = `
+                <h2 style="color:#aaa">TIRAJ FINI</h2>
+                <h1 style="font-size:40px; margin:10px 0">${drawn.join(" - ")}</h1>
+                <h2 style="color:#0f0">${genyen > 0 ? "GENYEN: "+genyen+" HTG" : "OU PA GENYEN"}</h2>
+                <button onclick="hideModal()" style="width:100px; padding:10px">OK</button>
+            `;
+            btn.disabled = false;
+            statusMsg.innerText = "";
         }, 1000);
     }
 
-    function montreRezilta(drawn) {
-        const bet = parseFloat(txtPeye.value);
-        const mine = myNumbersInput.value.split(" ");
-        let win = 0;
-        if(mine.includes(drawn[0])) win += bet*100;
-        if(mine.includes(drawn[1])) win += bet*50;
-        if(mine.includes(drawn[2])) win += bet*25;
-
-        setTimeout(() => {
-            const m = document.getElementById('result-modal');
-            const c = document.getElementById('modal-content');
-            c.innerHTML = `
-                <h2 style="color:#888; margin:0">TIRAJ KONPLÈ</h2>
-                <div style="font-size:35px; margin:20px 0; letter-spacing:8px; font-weight:bold">${drawn.join("-")}</div>
-                <h1 style="color:#00ff00">${win > 0 ? "OU GENYEN "+win+" HTG" : "PA GENYEN"}</h1>
-                <button onclick="document.getElementById('result-modal').style.display='none'" style="width:120px; box-shadow:none;">OK</button>
-            `;
-            m.style.display = "flex";
-            btnStart.disabled = false;
-        }, 1200);
-    }
+    window.hideModal = () => { document.getElementById('modal').style.display = "none"; };
 
     function loop() {
         ctx.clearRect(0,0,300,300);
+        // Desine ti "tous" sòti a nan kanva a
+        ctx.beginPath();
+        ctx.arc(150, 280, 25, 0, Math.PI, true);
+        ctx.strokeStyle = "#444"; ctx.lineWidth = 4; ctx.stroke();
+        
         balls.forEach(b => { b.update(); b.draw(); });
         requestAnimationFrame(loop);
     }
