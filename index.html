@@ -3,32 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Loto Klasik</title>
+    <title>Loto Klasik - Boul Deyò</title>
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        #app { width: 100%; max-width: 350px; padding: 15px; background: #1a1a1a; border-radius: 15px; text-align: center; }
+        #app { width: 100%; max-width: 350px; padding: 15px; background: #1a1a1a; border-radius: 15px; text-align: center; position: relative; }
         
-        canvas { background: radial-gradient(circle, #222, #000); border-radius: 50%; border: 3px solid #333; width: 220px; height: 220px; }
+        /* Tanbou */
+        canvas { background: radial-gradient(circle, #222, #000); border-radius: 50%; border: 4px solid #333; width: 220px; height: 220px; z-index: 1; position: relative; }
 
-        .prize-slots { display: flex; justify-content: center; gap: 15px; margin: 15px 0; min-height: 50px; }
-        .slot { width: 50px; height: 50px; border: 2px dashed #444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; position: relative; }
-        .slot-label { position: absolute; top: -15px; font-size: 9px; color: #aaa; width: 100%; }
+        /* Ranp kote boul yo tonbe */
+        .prize-slots { display: flex; justify-content: center; gap: 15px; margin: 25px 0 15px 0; min-height: 60px; }
+        .slot { 
+            width: 55px; height: 55px; 
+            border: 2px solid #333; 
+            border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: bold; font-size: 20px; 
+            position: relative; background: #000;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        .slot-label { position: absolute; top: -18px; font-size: 10px; color: #ffcc00; width: 100%; font-weight: bold; }
+
+        /* Boul k ap vole deyò a */
+        .flying-ball {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #fff;
+            z-index: 99;
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            border: 2px solid #fff;
+        }
 
         .input-area { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .field { display: flex; flex-direction: column; align-items: flex-start; }
+        .field { display: flex; flex-direction: column; align-items: flex-start; margin-top: 8px; }
         label { font-size: 10px; color: #888; margin-bottom: 3px; text-transform: uppercase; }
         
         input { width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 8px; font-size: 16px; font-weight: bold; text-align: center; }
         input:focus { border-color: #ff4d4d; outline: none; }
 
-        button { width: 100%; background: #cc0000; color: #fff; border: none; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 16px; margin-top: 15px; cursor: pointer; }
-        button:active { background: #ff0000; }
+        button { width: 100%; background: linear-gradient(#cc0000, #880000); color: #fff; border: none; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 16px; margin-top: 15px; cursor: pointer; box-shadow: 0 4px 0 #660000; }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #660000; }
 
-        /* Modal Rezilta */
-        #result-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
-        .modal-box { background: #222; padding: 25px; border-radius: 20px; border: 2px solid #cc0000; width: 80%; text-align: center; }
+        #result-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-box { background: #222; padding: 25px; border-radius: 20px; border: 2px solid #cc0000; width: 85%; text-align: center; }
     </style>
 </head>
 <body>
@@ -43,24 +70,19 @@
         </div>
 
         <div class="field">
-            <label>Mete 3 boul ou yo</label>
+            <label>Nimewo ou chwazi</label>
             <input type="text" id="my-numbers" inputmode="numeric" placeholder="00 00 00" maxlength="8">
         </div>
 
         <div class="input-area">
             <div class="field">
-                <label>Miz (Goud)</label>
+                <label>Kantite Miz</label>
                 <input type="number" id="bet-input" value="20">
             </div>
             <div class="field">
-                <label>Peye</label>
+                <label>Lajan Peye</label>
                 <input type="text" id="txt-peye" value="0" readonly>
             </div>
-        </div>
-
-        <div class="field" style="margin-top:10px;">
-            <label>W ap genyen</label>
-            <input type="text" id="txt-genyen" value="0" readonly style="color:#00ff00;">
         </div>
 
         <button id="btn-start">DEMARE TIRAJ</button>
@@ -77,11 +99,10 @@
     const myNumbersInput = document.getElementById('my-numbers');
     const betInput = document.getElementById('bet-input');
     const txtPeye = document.getElementById('txt-peye');
-    const txtGenyen = document.getElementById('txt-genyen');
 
     let balls = [];
     let isShaking = false;
-    let drawnNumbers = [];
+    let drawnCount = 0;
     const globe = { x: 150, y: 150, radius: 140 };
 
     // Auto-spacing pou 3 boul
@@ -99,30 +120,32 @@
         constructor(n) {
             this.num = n < 10 ? '0'+n : ''+n;
             this.radius = 12;
-            this.color = `hsl(${Math.random()*360}, 70%, 50%)`;
+            this.color = `hsl(${Math.random()*360}, 70%, 55%)`;
             this.reset();
         }
         reset() {
             this.x = globe.x + (Math.random()-0.5)*150;
             this.y = globe.y + (Math.random()-0.5)*150;
-            this.vx = (Math.random()-0.5)*12;
-            this.vy = (Math.random()-0.5)*12;
-            this.inGlobe = true;
+            this.vx = (Math.random()-0.5)*15;
+            this.vy = (Math.random()-0.5)*15;
+            this.visible = true;
         }
         draw() {
-            if(!this.inGlobe) return;
+            if(!this.visible) return;
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
             ctx.fillStyle = this.color;
             ctx.fill();
+            ctx.strokeStyle = "rgba(255,255,255,0.3)";
+            ctx.stroke();
             ctx.fillStyle = "#fff";
             ctx.font = "bold 10px Arial";
             ctx.textAlign = "center";
             ctx.fillText(this.num, this.x, this.y+4);
         }
         update() {
-            if(!this.inGlobe) return;
-            if(isShaking) { this.vx += (Math.random()-0.5)*6; this.vy += (Math.random()-0.5)*6; }
+            if(!this.visible) return;
+            if(isShaking) { this.vx += (Math.random()-0.5)*8; this.vy += (Math.random()-0.5)*8; }
             this.x += this.vx; this.y += this.vy;
             this.vx *= 0.98; this.vy *= 0.98;
             let dist = Math.hypot(this.x-globe.x, this.y-globe.y);
@@ -130,7 +153,7 @@
                 let ang = Math.atan2(this.y-globe.y, this.x-globe.x);
                 this.x = globe.x + Math.cos(ang)*(globe.radius-this.radius);
                 this.y = globe.y + Math.sin(ang)*(globe.radius-this.radius);
-                this.vx *= -0.8; this.vy *= -0.8;
+                this.vx *= -0.85; this.vy *= -0.85;
             }
         }
     }
@@ -141,69 +164,91 @@
     }
 
     btnStart.onclick = () => {
-        const val = myNumbersInput.value.trim();
-        if(val.length < 8) { alert("Chwazi 3 boul (00 00 00)"); return; }
-        
-        if(confirm(`Èske ou dakò peye ${betInput.value} goud?`)) {
+        if(myNumbersInput.value.length < 8) { alert("Mete 3 boul yo (00 00 00)"); return; }
+        if(confirm(`Èske w dakò peye ${betInput.value} HTG pou tiraj la?`)) {
             txtPeye.value = betInput.value;
-            komanseTiraj();
+            komanse();
         }
     };
 
-    function komanseTiraj() {
+    function komanse() {
         btnStart.disabled = true;
-        drawnNumbers = [];
+        drawnCount = 0;
+        let drawnNumbers = [];
+        
+        // Reset slots
         document.querySelectorAll('.slot').forEach(s => {
             const label = s.querySelector('.slot-label');
-            s.innerHTML = ""; 
-            s.appendChild(label);
-            s.style.background = "transparent";
+            s.innerHTML = ""; s.appendChild(label); s.style.background = "#000";
         });
 
         isShaking = true;
+        
+        // Tanbou brase pou 6 segond
         setTimeout(() => {
             isShaking = false;
-            tirer(0, 1000);
-            tirer(1, 2500);
-            tirer(2, 4000);
-        }, 5000); // 5 segond brase pou l pi rapid sou mobil
+            faireSortir(0, drawnNumbers);
+            setTimeout(() => faireSortir(1, drawnNumbers), 2000);
+            setTimeout(() => faireSortir(2, drawnNumbers), 4000);
+        }, 6000);
     }
 
-    function tirer(idx, delay) {
+    function faireSortir(idx, list) {
+        let available = balls.filter(b => b.visible);
+        let b = available[Math.floor(Math.random()*available.length)];
+        b.visible = false; // Li disparèt nan tanbou a
+        list.push(b.num);
+
+        // KREYE BOUL K AP VOLE A
+        const rect = canvas.getBoundingClientRect();
+        const flying = document.createElement('div');
+        flying.className = 'flying-ball';
+        flying.style.background = b.color;
+        flying.innerText = b.num;
+        // Li kòmanse nan mitan tanbou a
+        flying.style.left = (rect.left + rect.width/2 - 15) + "px";
+        flying.style.top = (rect.top + rect.height/2 - 15) + "px";
+        document.body.appendChild(flying);
+
+        // Jwenn kote slot la ye
+        const slot = document.getElementById(`slot-${idx}`);
+        const slotRect = slot.getBoundingClientRect();
+
+        // Animasyon pou l al tonbe nan slot la
         setTimeout(() => {
-            let available = balls.filter(b => b.inGlobe);
-            let b = available[Math.floor(Math.random()*available.length)];
-            b.inGlobe = false;
-            drawnNumbers.push(b.num);
-            
-            let slot = document.getElementById(`slot-${idx}`);
+            flying.style.left = (slotRect.left + slotRect.width/2 - 15) + "px";
+            flying.style.top = (slotRect.top + slotRect.height/2 - 15) + "px";
+            flying.style.width = "45px";
+            flying.style.height = "45px";
+            flying.style.fontSize = "18px";
+        }, 50);
+
+        // Lè l rive nan slot la nèt
+        setTimeout(() => {
+            flying.remove();
             slot.style.background = b.color;
             slot.innerHTML += b.num;
-
-            if(drawnNumbers.length === 3) verifikasyon();
-        }, delay);
+            if(list.length === 3) final (list);
+        }, 850);
     }
 
-    function verifikasyon() {
+    function final(drawn) {
         const bet = parseFloat(txtPeye.value);
         const mine = myNumbersInput.value.split(" ");
-        let win = 0;
-        let txt = "";
+        let total = 0;
 
-        if(mine.includes(drawnNumbers[0])) { win += bet*100; txt += "1ye Lò! "; }
-        if(mine.includes(drawnNumbers[1])) { win += bet*50; txt += "2yèm Lò! "; }
-        if(mine.includes(drawnNumbers[2])) { win += bet*25; txt += "3yèm Lò! "; }
+        if(mine.includes(drawn[0])) total += bet * 100;
+        if(mine.includes(drawn[1])) total += bet * 50;
+        if(mine.includes(drawn[2])) total += bet * 25;
 
-        txtGenyen.value = win;
-        
         setTimeout(() => {
             const modal = document.getElementById('result-modal');
             const content = document.getElementById('modal-content');
             content.innerHTML = `
-                <h1 style="color:#ffcc00">TIRAJ FINI</h1>
-                <p style="font-size:20px">${drawnNumbers.join(" - ")}</p>
-                <h2 style="color:#00ff00">${win > 0 ? "OU GENYEN: "+win+" HTG" : "OU PA GENYEN"}</h2>
-                <button onclick="document.getElementById('result-modal').style.display='none'" style="width:100px">OK</button>
+                <h1 style="color:#ffcc00; margin:0">REZILTA</h1>
+                <p style="font-size:28px; margin:15px 0; font-weight:bold">${drawn.join(" - ")}</p>
+                <h2 style="color:#00ff00">${total > 0 ? "BRAVO! OU GENYEN " + total + " HTG" : "OU PA GENYEN ANYEN"}</h2>
+                <button onclick="document.getElementById('result-modal').style.display='none'" style="width:120px; box-shadow:none;">OK</button>
             `;
             modal.style.display = "flex";
             btnStart.disabled = false;
