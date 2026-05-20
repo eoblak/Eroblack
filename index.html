@@ -3,89 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Loto Klasik - Boul Deyò</title>
+    <title>Loto Pro - PVC Transparan</title>
     <style>
         * { box-sizing: border-box; }
-        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        body { margin: 0; background: #050505; color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        #app { width: 100%; max-width: 350px; padding: 15px; background: #1a1a1a; border-radius: 15px; text-align: center; position: relative; }
+        #app { width: 100%; max-width: 360px; padding: 15px; background: #111; border-radius: 20px; text-align: center; border: 1px solid #333; }
         
         /* Tanbou */
-        canvas { background: radial-gradient(circle, #222, #000); border-radius: 50%; border: 4px solid #333; width: 220px; height: 220px; z-index: 1; position: relative; }
+        .tambour-zone { position: relative; margin-bottom: 40px; }
+        canvas { background: radial-gradient(circle, #222, #000); border-radius: 50%; border: 5px solid #222; width: 220px; height: 220px; box-shadow: 0 0 20px rgba(255,0,0,0.1); }
 
-        /* Ranp kote boul yo tonbe */
-        .prize-slots { display: flex; justify-content: center; gap: 15px; margin: 25px 0 15px 0; min-height: 60px; }
-        .slot { 
-            width: 55px; height: 55px; 
-            border: 2px solid #333; 
-            border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            font-weight: bold; font-size: 20px; 
-            position: relative; background: #000;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-        }
-        .slot-label { position: absolute; top: -18px; font-size: 10px; color: #ffcc00; width: 100%; font-weight: bold; }
-
-        /* Boul k ap vole deyò a */
-        .flying-ball {
-            position: fixed;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
+        /* Ti Chimen PVC Transparan */
+        .pvc-pipe {
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+            z-index: 0;
             display: flex;
+            justify-content: space-around;
             align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
-            color: #fff;
-            z-index: 99;
-            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
-            border: 2px solid #fff;
+            backdrop-filter: blur(5px);
         }
 
-        .input-area { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .field { display: flex; flex-direction: column; align-items: flex-start; margin-top: 8px; }
-        label { font-size: 10px; color: #888; margin-bottom: 3px; text-transform: uppercase; }
+        .prize-slots { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
+        .slot { 
+            width: 45px; height: 45px; 
+            border-radius: 50%; 
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: bold; font-size: 18px; position: relative;
+        }
+        .slot-label { position: absolute; bottom: -20px; font-size: 9px; color: #ffcc00; width: 100%; text-transform: uppercase; }
+
+        /* Boul k ap glise a */
+        .ball-exit {
+            position: fixed;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: #fff; font-size: 14px;
+            z-index: 99;
+            transition: all 0.9s cubic-bezier(0.5, 0, 0.5, 1);
+            box-shadow: inset -3px -3px 8px rgba(0,0,0,0.4), 0 5px 10px rgba(0,0,0,0.5);
+        }
+
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
+        .field { display: flex; flex-direction: column; align-items: flex-start; }
+        label { font-size: 10px; color: #666; margin-bottom: 4px; font-weight: bold; }
+        input { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; font-size: 16px; text-align: center; }
         
-        input { width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 8px; font-size: 16px; font-weight: bold; text-align: center; }
-        input:focus { border-color: #ff4d4d; outline: none; }
+        button { 
+            grid-column: span 2; width: 100%; 
+            background: linear-gradient(#e60000, #a30000); 
+            color: #fff; border: none; padding: 16px; border-radius: 12px; 
+            font-weight: bold; font-size: 18px; margin-top: 15px; cursor: pointer;
+            box-shadow: 0 5px 0 #600;
+        }
+        button:active { transform: translateY(3px); box-shadow: 0 2px 0 #600; }
 
-        button { width: 100%; background: linear-gradient(#cc0000, #880000); color: #fff; border: none; padding: 15px; border-radius: 10px; font-weight: bold; font-size: 16px; margin-top: 15px; cursor: pointer; box-shadow: 0 4px 0 #660000; }
-        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #660000; }
-
-        #result-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-box { background: #222; padding: 25px; border-radius: 20px; border: 2px solid #cc0000; width: 85%; text-align: center; }
+        #result-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-box { background: #1a1a1a; padding: 30px; border-radius: 25px; border: 2px solid #e60000; width: 85%; text-align: center; }
     </style>
 </head>
 <body>
 
     <div id="app">
-        <canvas id="lotoCanvas" width="300" height="300"></canvas>
-        
-        <div class="prize-slots">
-            <div class="slot" id="slot-0"><span class="slot-label">1ye Lò</span></div>
-            <div class="slot" id="slot-1"><span class="slot-label">2yèm Lò</span></div>
-            <div class="slot" id="slot-2"><span class="slot-label">3yèm Lò</span></div>
+        <div class="tambour-zone">
+            <canvas id="lotoCanvas" width="300" height="300"></canvas>
+            <div class="pvc-pipe">
+                <div class="slot" id="slot-0"><span class="slot-label">1ye</span></div>
+                <div class="slot" id="slot-1"><span class="slot-label">2yèm</span></div>
+                <div class="slot" id="slot-2"><span class="slot-label">3yèm</span></div>
+            </div>
         </div>
 
-        <div class="field">
-            <label>Nimewo ou chwazi</label>
+        <div class="field" style="margin-top: 20px;">
+            <label>CHWAZI 3 BOUL YO</label>
             <input type="text" id="my-numbers" inputmode="numeric" placeholder="00 00 00" maxlength="8">
         </div>
 
-        <div class="input-area">
+        <div class="controls">
             <div class="field">
-                <label>Kantite Miz</label>
+                <label>MIZ (HTG)</label>
                 <input type="number" id="bet-input" value="20">
             </div>
             <div class="field">
-                <label>Lajan Peye</label>
-                <input type="text" id="txt-peye" value="0" readonly>
+                <label>STATI PEYE</label>
+                <input type="text" id="txt-peye" value="0" readonly style="color: #ffcc00;">
             </div>
         </div>
 
-        <button id="btn-start">DEMARE TIRAJ</button>
+        <button id="btn-start">PEYE & TIRER</button>
     </div>
 
     <div id="result-modal">
@@ -102,10 +119,9 @@
 
     let balls = [];
     let isShaking = false;
-    let drawnCount = 0;
     const globe = { x: 150, y: 150, radius: 140 };
 
-    // Auto-spacing pou 3 boul
+    // Formatage chif yo
     myNumbersInput.addEventListener('input', (e) => {
         let v = e.target.value.replace(/\D/g, '');
         let res = "";
@@ -120,12 +136,12 @@
         constructor(n) {
             this.num = n < 10 ? '0'+n : ''+n;
             this.radius = 12;
-            this.color = `hsl(${Math.random()*360}, 70%, 55%)`;
+            this.color = `hsl(${Math.random()*360}, 75%, 60%)`;
             this.reset();
         }
         reset() {
-            this.x = globe.x + (Math.random()-0.5)*150;
-            this.y = globe.y + (Math.random()-0.5)*150;
+            this.x = globe.x + (Math.random()-0.5)*180;
+            this.y = globe.y + (Math.random()-0.5)*180;
             this.vx = (Math.random()-0.5)*15;
             this.vy = (Math.random()-0.5)*15;
             this.visible = true;
@@ -136,24 +152,22 @@
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
             ctx.fillStyle = this.color;
             ctx.fill();
-            ctx.strokeStyle = "rgba(255,255,255,0.3)";
-            ctx.stroke();
-            ctx.fillStyle = "#fff";
-            ctx.font = "bold 10px Arial";
+            ctx.fillStyle = "rgba(255,255,255,0.8)";
+            ctx.font = "bold 9px Arial";
             ctx.textAlign = "center";
-            ctx.fillText(this.num, this.x, this.y+4);
+            ctx.fillText(this.num, this.x, this.y+3);
         }
         update() {
             if(!this.visible) return;
-            if(isShaking) { this.vx += (Math.random()-0.5)*8; this.vy += (Math.random()-0.5)*8; }
+            if(isShaking) { this.vx += (Math.random()-0.5)*10; this.vy += (Math.random()-0.5)*10; }
             this.x += this.vx; this.y += this.vy;
-            this.vx *= 0.98; this.vy *= 0.98;
+            this.vx *= 0.97; this.vy *= 0.97;
             let dist = Math.hypot(this.x-globe.x, this.y-globe.y);
             if(dist + this.radius > globe.radius) {
                 let ang = Math.atan2(this.y-globe.y, this.x-globe.x);
                 this.x = globe.x + Math.cos(ang)*(globe.radius-this.radius);
                 this.y = globe.y + Math.sin(ang)*(globe.radius-this.radius);
-                this.vx *= -0.85; this.vy *= -0.85;
+                this.vx *= -0.8; this.vy *= -0.8;
             }
         }
     }
@@ -164,95 +178,83 @@
     }
 
     btnStart.onclick = () => {
-        if(myNumbersInput.value.length < 8) { alert("Mete 3 boul yo (00 00 00)"); return; }
-        if(confirm(`Èske w dakò peye ${betInput.value} HTG pou tiraj la?`)) {
+        if(myNumbersInput.value.length < 8) { alert("Mete 3 boul yo tanpri!"); return; }
+        if(confirm(`Èske w konfime peman ${betInput.value} HTG la?`)) {
             txtPeye.value = betInput.value;
-            komanse();
+            tiraj();
         }
     };
 
-    function komanse() {
+    function tiraj() {
         btnStart.disabled = true;
-        drawnCount = 0;
-        let drawnNumbers = [];
-        
-        // Reset slots
+        let drawn = [];
+        isShaking = true;
+
         document.querySelectorAll('.slot').forEach(s => {
             const label = s.querySelector('.slot-label');
-            s.innerHTML = ""; s.appendChild(label); s.style.background = "#000";
+            s.innerHTML = ""; s.appendChild(label); s.style.background = "rgba(0,0,0,0.5)";
         });
 
-        isShaking = true;
-        
-        // Tanbou brase pou 6 segond
         setTimeout(() => {
             isShaking = false;
-            faireSortir(0, drawnNumbers);
-            setTimeout(() => faireSortir(1, drawnNumbers), 2000);
-            setTimeout(() => faireSortir(2, drawnNumbers), 4000);
-        }, 6000);
+            // Soti boul yo youn pa youn
+            for(let i=0; i<3; i++) {
+                setTimeout(() => sotiBoul(i, drawn), i * 2000);
+            }
+        }, 5000);
     }
 
-    function faireSortir(idx, list) {
-        let available = balls.filter(b => b.visible);
-        let b = available[Math.floor(Math.random()*available.length)];
-        b.visible = false; // Li disparèt nan tanbou a
+    function sotiBoul(idx, list) {
+        let av = balls.filter(b => b.visible);
+        let b = av[Math.floor(Math.random()*av.length)];
+        b.visible = false;
         list.push(b.num);
 
-        // KREYE BOUL K AP VOLE A
         const rect = canvas.getBoundingClientRect();
-        const flying = document.createElement('div');
-        flying.className = 'flying-ball';
-        flying.style.background = b.color;
-        flying.innerText = b.num;
-        // Li kòmanse nan mitan tanbou a
-        flying.style.left = (rect.left + rect.width/2 - 15) + "px";
-        flying.style.top = (rect.top + rect.height/2 - 15) + "px";
-        document.body.appendChild(flying);
+        const f = document.createElement('div');
+        f.className = 'ball-exit';
+        f.style.background = b.color;
+        f.innerText = b.num;
+        f.style.left = (rect.left + rect.width/2 - 16) + "px";
+        f.style.top = (rect.top + rect.height - 20) + "px"; // Kòmanse anba tanbou a
+        document.body.appendChild(f);
 
-        // Jwenn kote slot la ye
-        const slot = document.getElementById(`slot-${idx}`);
-        const slotRect = slot.getBoundingClientRect();
+        const target = document.getElementById(`slot-${idx}`).getBoundingClientRect();
 
-        // Animasyon pou l al tonbe nan slot la
         setTimeout(() => {
-            flying.style.left = (slotRect.left + slotRect.width/2 - 15) + "px";
-            flying.style.top = (slotRect.top + slotRect.height/2 - 15) + "px";
-            flying.style.width = "45px";
-            flying.style.height = "45px";
-            flying.style.fontSize = "18px";
-        }, 50);
+            f.style.left = (target.left + target.width/2 - 16) + "px";
+            f.style.top = (target.top + target.height/2 - 16) + "px";
+        }, 100);
 
-        // Lè l rive nan slot la nèt
         setTimeout(() => {
-            flying.remove();
+            f.remove();
+            const slot = document.getElementById(`slot-${idx}`);
             slot.style.background = b.color;
             slot.innerHTML += b.num;
-            if(list.length === 3) final (list);
-        }, 850);
+            if(list.length === 3) montreRezilta(list);
+        }, 1000);
     }
 
-    function final(drawn) {
+    function montreRezilta(drawn) {
         const bet = parseFloat(txtPeye.value);
         const mine = myNumbersInput.value.split(" ");
-        let total = 0;
-
-        if(mine.includes(drawn[0])) total += bet * 100;
-        if(mine.includes(drawn[1])) total += bet * 50;
-        if(mine.includes(drawn[2])) total += bet * 25;
+        let win = 0;
+        if(mine.includes(drawn[0])) win += bet*100;
+        if(mine.includes(drawn[1])) win += bet*50;
+        if(mine.includes(drawn[2])) win += bet*25;
 
         setTimeout(() => {
-            const modal = document.getElementById('result-modal');
-            const content = document.getElementById('modal-content');
-            content.innerHTML = `
-                <h1 style="color:#ffcc00; margin:0">REZILTA</h1>
-                <p style="font-size:28px; margin:15px 0; font-weight:bold">${drawn.join(" - ")}</p>
-                <h2 style="color:#00ff00">${total > 0 ? "BRAVO! OU GENYEN " + total + " HTG" : "OU PA GENYEN ANYEN"}</h2>
+            const m = document.getElementById('result-modal');
+            const c = document.getElementById('modal-content');
+            c.innerHTML = `
+                <h2 style="color:#888; margin:0">TIRAJ KONPLÈ</h2>
+                <div style="font-size:35px; margin:20px 0; letter-spacing:8px; font-weight:bold">${drawn.join("-")}</div>
+                <h1 style="color:#00ff00">${win > 0 ? "OU GENYEN "+win+" HTG" : "PA GENYEN"}</h1>
                 <button onclick="document.getElementById('result-modal').style.display='none'" style="width:120px; box-shadow:none;">OK</button>
             `;
-            modal.style.display = "flex";
+            m.style.display = "flex";
             btnStart.disabled = false;
-        }, 1000);
+        }, 1200);
     }
 
     function loop() {
